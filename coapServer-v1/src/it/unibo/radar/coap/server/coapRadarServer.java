@@ -30,7 +30,7 @@ import org.eclipse.californium.core.network.config.NetworkConfig;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
 import it.unibo.qactors.akka.QActor;
-import it.unibo.radar.coap.RadarPoint;
+import it.unibo.radar.RadarPoint;
 
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 

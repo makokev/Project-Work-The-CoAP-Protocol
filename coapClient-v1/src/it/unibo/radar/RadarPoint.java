@@ -1,4 +1,4 @@
-package it.unibo.radar.coap;
+package it.unibo.radar;
 
 public class RadarPoint{
 	

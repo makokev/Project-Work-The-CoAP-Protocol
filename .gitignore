@@ -4,4 +4,4 @@
 */.metadata/
 */.gradle/
 */.plugins/
-/.metadata/
+.recommenders/

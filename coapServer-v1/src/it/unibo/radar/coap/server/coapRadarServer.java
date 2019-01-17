@@ -97,7 +97,7 @@ public class coapRadarServer extends CoapServer{
     		try{
     			radarPoint = RadarPoint.convertFromString(message);
     			ACTOR.emit("polar", "p("+radarPoint.compactToString()+")"); // changing radar gui
-    			exange.respond(ResponseCode.CHANGED);
+    			exange.respond(ResponseCode.CHANGED, "Resource changed.");
     			changed();
     		} catch(IllegalArgumentException e){
     			exange.respond(ResponseCode.UNSUPPORTED_CONTENT_FORMAT, "Request ignored.");

@@ -1,5 +1,7 @@
 package it.unibo.radar.gui;
 
+import javax.swing.JScrollPane;
+import java.util.HashMap;
 import java.awt.Button;
 import java.awt.Component;
 import java.awt.Container;
@@ -13,16 +15,22 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import org.eclipse.californium.core.coap.MediaTypeRegistry;
+
+import coap.mediator.CoapMediator;
+import coap.mediator.CoapMediatorResponse;
+import coap.mediator.CoapRequestID;
 import it.unibo.qactors.akka.QActor;
 import it.unibo.radar.coap.RadarPoint;
-import it.unibo.radar.coap.client.CoapRadarClient;
 
 public class radarGUIController extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	private static final String URI_STRING = "coap://localhost:5683/RadarPoint";
 	private static radarGUIController frame;
 	
-	private TextField txtDistance, txtAngle;
+	private HashMap<Integer, CoapRequestID> map;
+	private TextField txtDistance, txtAngle, txtResponseId;
 	private JTextArea txtArea;
 	
 	public static void startGUI(QActor actor){
@@ -36,9 +44,10 @@ public class radarGUIController extends JFrame {
 	
 	private radarGUIController(){
 		super("Radar GUI Controller");
+		map = new HashMap<>();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(500,250);
+		setSize(500,400);
 		this.setResizable(false);
 		setLayout(new FlowLayout());
 			
@@ -55,57 +64,84 @@ public class radarGUIController extends JFrame {
 		pnlAngle.add(lable2);
 		pnlAngle.add(txtAngle);
 		
+		JPanel pnlResponse = new JPanel();
+		Label lable3 = new Label("Response id");
+		txtResponseId = new TextField(50);
+		pnlResponse.add(lable3);
+		pnlResponse.add(txtResponseId);
+		
+		
 		JPanel pnlButton = new JPanel();
 		Button btnGet = new Button("GET");
 		Button btnPut = new Button("PUT");
+		Button btnResponse = new Button("RESPONSE");
 		pnlButton.add(btnGet);
 		pnlButton.add(btnPut);
+		pnlButton.add(btnResponse);
 		
-		txtArea = new JTextArea(5,40);
+		txtArea = new JTextArea(12,40);
 		txtArea.setEditable(false);
 		txtArea.setAutoscrolls(true);
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.add(txtArea);
+		scrollPane.setViewportView(txtArea);
 		
 		Container container = getContentPane();
 		container.add(pnlDistance);
 		container.add(pnlAngle);
+		container.add(pnlResponse);
 		container.add(pnlButton);
-		container.add(txtArea);
+		container.add(scrollPane);
 		
 		btnGet.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				txtArea.setText("GET\n");
-				CoapRadarClient client = CoapRadarClient.getInstance();
-				RadarPoint point = client.getResourceValue();
-				if(point != null)
-					txtArea.append("Point Received: "+point.toString());
-				else
-					txtArea.append("Point not available.");
+				CoapMediator mediator = CoapMediator.GetInstance();
+				CoapRequestID id = mediator.Get(URI_STRING);
+				map.put(id.getNumericId(), id);
+				txtArea.append("REQUEST_GET ID: " + id.getNumericId() + "\n");
 			}
 		});
 		
 		btnPut.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				txtArea.setText("PUT\n");
+				
 				String distance = txtDistance.getText();
 				String angle = txtAngle.getText();
 				if(distance.isEmpty() || angle.isEmpty())
-					txtArea.setText("Insert data into fields to execute a PUT operation.");
+					txtArea.append("Insert data into fields to execute a PUT operation.\n");
 				else{
 					RadarPoint point = RadarPoint.convertFromString(distance+","+angle);
 					if(point != null){
-						CoapRadarClient client = CoapRadarClient.getInstance();
-						boolean success = client.putResourceValue(point);
-						if(success)
-							txtArea.append("Resource value changed: "+point.toString());
-						else
-							txtArea.append("Resource value NOT changed. Error");
+						CoapMediator mediator = CoapMediator.GetInstance();
+						CoapRequestID id = mediator.Put(URI_STRING, point.compactToString(), MediaTypeRegistry.TEXT_PLAIN);
+						map.put(id.getNumericId(), id);
+						txtArea.append("REQUEST_PUT ID: " + id.getNumericId() + "\n");
 					}
 					else
-						txtArea.append("Invalid data insered (distance: [0,80], angle: [0,360]).");
+						txtArea.append("Invalid data insered (distance: [0,80], angle: [0,360]).\n");
 				}
+				txtDistance.setText("");
+				txtAngle.setText("");
+			}
+		});
+		
+		btnResponse.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				String responseID = txtResponseId.getText();
+				if(responseID.isEmpty() || responseID.isEmpty())
+					txtArea.append("Insert data into the response_id field to execute a RESPONSE operation.\n");
+				else{
+					int id = Integer.parseInt(responseID);
+					CoapMediator mediator = CoapMediator.GetInstance();
+					CoapMediatorResponse response = mediator.GetResponse(map.get(id));
+					txtArea.append("RESPONSE_VALUE: " + response.getResponse().getResponseText() + "\n");
+				}
+				txtResponseId.setText("");
 			}
 		});
 	}
@@ -115,6 +151,6 @@ public class radarGUIController extends JFrame {
 	}
 	
 	public static void setValue(String distance, String angle){
-		frame.txtArea.setText("distance = " + distance + ", angle = " + angle);
+		frame.txtArea.append("distance = " + distance + ", angle = " + angle + "\n");
 	}
 }

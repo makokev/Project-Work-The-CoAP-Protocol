@@ -1,0 +1,5 @@
+plan(1,init, sentence(true,move(print("coap_client start.")),'','' ))
+plan(2,init, sentence(true,delay( 500) ,'','' ))
+plan(1,sendingMessage, sentence(true,forward(coap_server, value,value( 10,10)),'','' ))
+plan(2,sendingMessage, sentence(true,move(print("Message sent: value(10,10).")),'','' ))
+plan(3,sendingMessage, sentence(true,move(print("Stopping")),'','' ))

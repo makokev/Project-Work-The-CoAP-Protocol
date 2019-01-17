@@ -1,0 +1,46 @@
+System coapSystemV0
+
+Event polar : p( Distance, Angle  )
+
+Dispatch value : value ( Discance, Angle )
+
+Context ctxCoapSystemV0 ip [ host="localhost" port=8000 ]
+
+QActor coap_server context ctxCoapSystemV0 {
+	Plan init normal
+	[
+		println("coap_server start.")
+	]
+	switchTo waitingMessage
+	
+	Plan waitingMessage
+	[
+		println("Waiting message...")
+	]
+	transition stopAfter 360000
+		whenMsg value -> messageReceived
+	finally repeatPlan
+	
+	Plan messageReceived
+	[
+		println("Message received. (Distance, Angle):");
+		onMsg value : value(Distance, Angle) -> println(Distance);
+		onMsg value : value(Distance, Angle) -> println(Angle)	
+	]
+}
+
+QActor coap_client context ctxCoapSystemV0{
+	Plan init normal
+	[
+		println("coap_client start.");
+		delay 500
+	]
+	switchTo sendingMessage
+	
+	Plan sendingMessage
+	[
+		forward coap_server -m value : value(10,10);
+		println("Message sent: value(10,10).");
+		println("Stopping")
+	]
+}

@@ -1,0 +1,5 @@
+plan(1,init, sentence(true,move(print("coap_server start.")),'','' ))
+plan(1,waitingMessage, sentence(true,move(print("Waiting message...")),'','' ))
+plan(1,messageReceived, sentence(true,move(print("Message received. (Distance, Angle):")),'','' ))
+plan(2,messageReceived, sentence(true,msgswitch(value, value( Distance,Angle) , move(print(Distance))),'','' ))
+plan(3,messageReceived, sentence(true,msgswitch(value, value( Distance,Angle) , move(print(Angle))),'','' ))

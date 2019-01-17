@@ -1,0 +1,22 @@
+/*
+*
+* A GraphViz DOT FSM description 
+* Please use a GraphViz visualizer (like http://www.webgraphviz.com)
+*  
+*/
+
+digraph finite_state_machine {
+	rankdir=LR
+	size="8,5"
+	
+	init [ color = red ][ fontcolor = red ][ penwidth = 3 ]
+	getReceived [ color = black ][ fontcolor = black ][ penwidth = 3 ]
+	putReceived [ color = black ][ fontcolor = black ][ penwidth = 3 ]
+	stopping [ color = blue ][ fontcolor = blue ][ penwidth = 3 ]
+	
+	getReceived -> putReceived [ label = "value" ][ color = black ][ fontcolor = black ]
+	getReceived -> handleToutBuiltIn [ label = "timeout(36000)" ][ color = green ][ fontcolor = green ]
+	putReceived -> stopping [ label = "switch" ][ color = black ][ fontcolor = black ]
+	init -> getReceived [ label = "value" ][ color = black ][ fontcolor = black ]
+	init -> handleToutBuiltIn [ label = "timeout(36000)" ][ color = green ][ fontcolor = green ]
+}

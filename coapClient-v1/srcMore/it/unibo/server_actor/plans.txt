@@ -1,5 +1,0 @@
-plan(1,init, sentence(true,move(print("radarCoapServer start.")),'','' ))
-plan(2,init, sentence(true,not here StateMoveNormal,'','' ))
-plan(3,init, sentence(true,raise( polar , p( 0,0) )'),'','' ))
-plan(1,stopping, sentence(true,move(print("radarCoapServer stop.")),'','' ))
-plan(2,stopping, sentence(true,not here StateMoveNormal,'','' ))

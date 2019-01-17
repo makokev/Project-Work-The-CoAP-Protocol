@@ -1,11 +1,11 @@
 %==============================================
-% WorldTheory.pl for actor server_actor
+% WorldTheory.pl for actor test_client
 %==============================================
 /*
 For a QActor as a singleton statically degined in the model
 */
-myname(qatuserver_actor).	%%old version (deprecated)
-actorobj(qatuserver_actor).	%% see registerActorInProlog18 in QActor
+myname(qatutest_client).	%%old version (deprecated)
+actorobj(qatutest_client).	%% see registerActorInProlog18 in QActor
 
 /*
 For a QActor instance of name=Name dynamically created
@@ -81,7 +81,7 @@ evalGuard( G ) :-
 
 output( M ):-stdout <- println( M ).
 %-------------------------------------------------
-%  TuProlo FEATURES of the QActor server_actor
+%  TuProlo FEATURES of the QActor test_client
 %-------------------------------------------------
 dialog( FileName ) :-  
 	java_object('javax.swing.JFileChooser', [], Dialog),
@@ -89,7 +89,7 @@ dialog( FileName ) :-
 	Dialog <- getSelectedFile returns File,
 	File <- getName returns FileName. 		 
 
-%% :- stdout <- println(  "hello from world theory of server_actor" ). 
+%% :- stdout <- println(  "hello from world theory of test_client" ). 
 
 %-------------------------------------------------
 %  UTILITIES for TuProlog computations
@@ -140,7 +140,7 @@ inc(I,K,N):-
 actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 
 %-------------------------------------------------
-%  User static rules about server_actor
+%  User static rules about test_client
 %------------------------------------------------- 
 /*
 ------------------------------------------------------------------------

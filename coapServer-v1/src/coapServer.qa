@@ -1,0 +1,28 @@
+System coapServer
+
+Event polar : p( Distance, Angle )  
+Dispatch stopMessage : stopMessage
+
+Context ctxCoapServer  ip [ host="localhost" port=8044 ]
+Context ctxRadarBase   ip [ host="localhost" port=8033 ]  -standalone 
+
+QActor server_actor context ctxCoapServer{
+	
+	Plan init normal
+	[
+		println("radarCoapServer start.");
+		javaRun it.unibo.radar.coap.server.coapRadarServer.startServer();
+		emit polar : p(0,0)
+	]
+	switchTo running
+	
+	Plan running [ ]
+	transition stopAfter 36000000
+		whenMsg stopMessage -> stopping
+
+	Plan stopping
+	[
+		println("radarCoapServer stop.");
+		javaRun it.unibo.radar.coap.server.coapRadarServer.stopServer()
+	]
+}

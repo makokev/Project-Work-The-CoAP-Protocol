@@ -4,7 +4,10 @@ Event polar : p( Distance, Angle  )
 
 Dispatch value : value ( Discance, Angle )
 
-Context ctxCoapSystemV0 ip [ host="localhost" port=8000 ]
+
+Context ctxCoapSystemV0 ip [ host="localhost" port=8000 ] 
+Context ctxRadarBase   ip [ host="localhost" port=8033 ] -standalone 
+
 
 QActor coap_server context ctxCoapSystemV0 {
 	Plan init normal
@@ -25,7 +28,8 @@ QActor coap_server context ctxCoapSystemV0 {
 	[
 		println("Message received. (Distance, Angle):");
 		onMsg value : value(Distance, Angle) -> println(Distance);
-		onMsg value : value(Distance, Angle) -> println(Angle)	
+		onMsg value : value(Distance, Angle) -> println(Angle);
+		onMsg value : value(Distance, Angle) -> emit polar : p(Distance, Angle)
 	]
 }
 

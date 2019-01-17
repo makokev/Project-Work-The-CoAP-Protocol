@@ -136,6 +136,18 @@ public abstract class AbstractCoap_server extends QActor {
 	    			    		  	Term.createTerm(currentMessage.msgContent()), parg);
 	    		if( parg != null ) println( parg );
 	    	}
+	    	//onMsg 
+	    	setCurrentMsgFromStore(); 
+	    	curT = Term.createTerm("value(Distance,Angle)");
+	    	if( currentMessage != null && currentMessage.msgId().equals("value") && 
+	    		pengine.unify(curT, Term.createTerm("value(Discance,Angle)")) && 
+	    		pengine.unify(curT, Term.createTerm( currentMessage.msgContent() ) )){ 
+	    		String parg="p(Distance,Angle)";
+	    		/* RaiseEvent */
+	    		parg = updateVars(Term.createTerm("value(Discance,Angle)"),  Term.createTerm("value(Distance,Angle)"), 
+	    			    		  					Term.createTerm(currentMessage.msgContent()), parg);
+	    		if( parg != null ) emit( "polar", parg );
+	    	}
 	    	repeatPlanNoTransition(pr,myselfName,"coap_server_"+myselfName,false,false);
 	    }catch(Exception e_messageReceived){  
 	    	 println( getName() + " plan=messageReceived WARNING:" + e_messageReceived.getMessage() );

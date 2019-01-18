@@ -10,19 +10,19 @@ public class CoapMediator {
 	private static CoapMediator instance = null;
 	private static HashMap<CoapRequestID, CoapRequest> map;
 	private static Counter counter;
-		
+	
 	// used by clients to get an instance of the mediator
 	synchronized public static CoapMediator GetInstance(){
 		if(instance == null){
 			instance = new CoapMediator();
 			map = new HashMap<>();
-			counter = new Counter(); //count = 0;
+			counter = new Counter(); // count = 0;
 		}
 		return instance;
 	}
 	
 	// used by clients to send a GET-REQUEST
-	synchronized public CoapRequestID Get(String uri){
+	public CoapRequestID Get(String uri){
 		CoapRequestGet coapRequest = new CoapRequestGet(counter.GetCount(), uri);
 		counter.IncrementCount();
 		map.put(coapRequest.GetRequestId(), coapRequest);
@@ -31,7 +31,7 @@ public class CoapMediator {
 	}
 	
 	// used by clients to send a PUT-REQUEST
-	synchronized public CoapRequestID Put(String uri, String payload, int payloadFormat){
+	public CoapRequestID Put(String uri, String payload, int payloadFormat){
 		CoapRequestPut coapRequest = new CoapRequestPut(counter.GetCount(), uri, payload, payloadFormat);
 		counter.IncrementCount();
 		map.put(coapRequest.GetRequestId(), coapRequest);
@@ -40,7 +40,7 @@ public class CoapMediator {
 	}
 
 	// used by clients to obtain the response if exists, otherwise a null is returned
-	synchronized public CoapMediatorResponse GetResponse(CoapRequestID coapID){
+	public CoapMediatorResponse GetResponse(CoapRequestID coapID){
 		CoapRequest request = map.get(coapID);
 		if(request.IsResponseReady()){
 			map.remove(coapID); // the response is readable only one time!
@@ -48,6 +48,7 @@ public class CoapMediator {
 		}
 		else
 			return null;
+		
 	}
 	
 	// used by threads to update the map with the received coap response

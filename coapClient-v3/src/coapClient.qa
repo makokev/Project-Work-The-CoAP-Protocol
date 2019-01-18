@@ -18,7 +18,6 @@ QActor client_actor context ctxCoapClient{
 	Plan init normal
 	[ 
 		println("radarCoapClient start.");
-		javaRun it.unibo.radar.coap.client.coapRadarClientSimple.initClient();
 		javaRun it.unibo.radar.gui.radarGUIController.startGUI()
 	]
 	switchTo running

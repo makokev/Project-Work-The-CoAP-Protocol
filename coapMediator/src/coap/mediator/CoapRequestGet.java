@@ -6,4 +6,5 @@ public class CoapRequestGet extends CoapRequest {
 	protected CoapRequestGet(int id, String uri) {
 		super(id, uri);
 	}
+	
 }

@@ -1,15 +1,40 @@
 package coap.mediator;
 
-// A synchronized counter
+import java.util.concurrent.Semaphore;
+
+//A synchronized counter
 public class Counter{
-	private int count = 0;
+	private int count;
+	private Semaphore s;
 	
-	synchronized public int GetCount(){
-		return count;
+	public Counter() {
+		s = new Semaphore(1);
+		count = 0;
 	}
 	
-	synchronized public void IncrementCount(){
-		count ++;
+	public int GetCount(){
+		try {
+			s.acquire();
+			int c = count;
+			s.release();
+			return c;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.out.println("Counter: GetCount() error.");
+			System.exit(-1);
+		}
+		return -1;
 	}
 	
+	public void IncrementCount(){
+		try {
+			s.acquire();
+			count ++;
+			s.release();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			System.out.println("Counter: IncrementCount() error.");
+			System.exit(-1);
+		}	
+	}
 }

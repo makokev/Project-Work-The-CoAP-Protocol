@@ -14,6 +14,7 @@ public class MediatorMain {
 	public static final String ARGUMENT_SEPARATOR = "_";
 
 	public static void main(String[] args) throws IOException {
+		
 		@SuppressWarnings("resource")
 		ServerSocket welcomeSocket = new ServerSocket(LOCAL_PORT);
 		

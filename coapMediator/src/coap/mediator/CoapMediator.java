@@ -30,6 +30,9 @@ public class CoapMediator {
 
 	// used by clients to send a RESPONSE-REQUEST to obtain the response if exists, otherwise a null is returned
 	synchronized public static CoapMediatorResponse GetResponse(CoapRequestID coapID){
+        if((coapID.getNumericId() < counter.GetCount() && !map.containsKey(coapID.getNumericId())) || coapID.getNumericId() >= counter.GetCount()) {
+            return new CoapMediatorResponse(null, false);
+        }
 		CoapRequest request = map.get(coapID.getNumericId());
 		if(request != null && request.IsResponseReady()){
 			map.remove(coapID.getNumericId()); // the response is readable only one time!

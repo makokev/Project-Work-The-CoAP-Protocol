@@ -10,19 +10,19 @@ import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 
 import it.unibo.radar.coap.RadarPoint;
 
-public class CoapRadarClient {
+public class coapRadarClient {
 	
 	private static final String URI_STRING = "coap://localhost:5683/RadarPoint";
-	private static CoapRadarClient instance;
+	private static coapRadarClient instance;
 	private CoapClient client;
 	
-	public static CoapRadarClient getInstance(){
+	public static coapRadarClient getInstance(){
 		if(instance == null)
-			instance = new CoapRadarClient();
+			instance = new coapRadarClient();
 		return instance;
 	}
 	
-	private CoapRadarClient(){
+	private coapRadarClient(){
 		URI uri = null; // URI parameter of the request	
 		try {
 			uri = new URI(URI_STRING);

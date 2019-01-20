@@ -91,9 +91,11 @@ public class coapRadarServer extends CoapServer{
             exchange.respond(radarPoint.compactToString());
         }
     	
+    	@Override
     	public void handlePUT(CoapExchange exange) {
     		System.out.println("PUT request received.");
     		String message = exange.getRequestText();
+    		System.out.println("message: "+message);
     		try{
     			radarPoint = RadarPoint.convertFromString(message);
     			ACTOR.emit("polar", "p("+radarPoint.compactToString()+")"); // changing radar gui

@@ -7,53 +7,41 @@ import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 
 public class CoapMediator {
 	
-	private static CoapMediator instance = null;
-	private static HashMap<CoapRequestID, CoapRequest> map;
-	private static Counter counter;
-	
-	// used by clients to get an instance of the mediator
-	synchronized public static CoapMediator GetInstance(){
-		if(instance == null){
-			instance = new CoapMediator();
-			map = new HashMap<>();
-			counter = new Counter(); // count = 0;
-		}
-		return instance;
-	}
+	private static HashMap<Integer, CoapRequest> map = new HashMap<>();
+	private static Counter counter = new Counter();
 	
 	// used by clients to send a GET-REQUEST
-	public CoapRequestID Get(String uri){
+	synchronized public static CoapRequestID Get(String uri){
 		CoapRequestGet coapRequest = new CoapRequestGet(counter.GetCount(), uri);
 		counter.IncrementCount();
-		map.put(coapRequest.GetRequestId(), coapRequest);
-		(instance.new MediatorThreadGet(coapRequest)).start();
+		map.put(coapRequest.GetRequestId().getNumericId(), coapRequest);
+		(new MediatorThreadGet(coapRequest)).start();
 		return coapRequest.GetRequestId();
 	}
 	
 	// used by clients to send a PUT-REQUEST
-	public CoapRequestID Put(String uri, String payload, int payloadFormat){
+	synchronized public static CoapRequestID Put(String uri, String payload, int payloadFormat){
 		CoapRequestPut coapRequest = new CoapRequestPut(counter.GetCount(), uri, payload, payloadFormat);
 		counter.IncrementCount();
-		map.put(coapRequest.GetRequestId(), coapRequest);
-		(instance.new MediatorThreadPut(coapRequest)).start();
+		map.put(coapRequest.GetRequestId().getNumericId(), coapRequest);
+		(new MediatorThreadPut(coapRequest)).start();
 		return coapRequest.GetRequestId();
 	}
 
-	// used by clients to obtain the response if exists, otherwise a null is returned
-	public CoapMediatorResponse GetResponse(CoapRequestID coapID){
-		CoapRequest request = map.get(coapID);
-		if(request.IsResponseReady()){
-			map.remove(coapID); // the response is readable only one time!
+	// used by clients to send a RESPONSE-REQUEST to obtain the response if exists, otherwise a null is returned
+	synchronized public static CoapMediatorResponse GetResponse(CoapRequestID coapID){
+		CoapRequest request = map.get(coapID.getNumericId());
+		if(request != null && request.IsResponseReady()){
+			map.remove(coapID.getNumericId()); // the response is readable only one time!
 			return new CoapMediatorResponse(request.GetResponse(), ResponseCode.isSuccess(request.GetResponse().getCode()));
 		}
 		else
 			return null;
-		
 	}
 	
 	// used by threads to update the map with the received coap response
-	synchronized protected void RegisterResponse(CoapRequest coapRequest){
-		map.put(coapRequest.GetRequestId(), coapRequest); // update the value of coapRequest
+	synchronized protected static void RegisterResponse(CoapRequest coapRequest){
+		map.put(coapRequest.GetRequestId().getNumericId(), coapRequest); // update the value of coapRequest
 	}
 	
 
@@ -62,7 +50,7 @@ public class CoapMediator {
 	//
 	
 	// the generic class
-	public abstract class MediatorThread extends Thread{
+	public static abstract class MediatorThread extends Thread{
 		protected CoapRequest coapRequest;
 		
 		protected MediatorThread(CoapRequest coapRequest){
@@ -74,7 +62,7 @@ public class CoapMediator {
 	}
 	
 	// the specific GET class
-	public class MediatorThreadGet extends MediatorThread{
+	public static class MediatorThreadGet extends MediatorThread{
 		
 		public MediatorThreadGet(CoapRequestGet coapRequest){
 			super(coapRequest);
@@ -83,14 +71,15 @@ public class CoapMediator {
 		@Override
 		public void run(){
 			CoapClient client = new CoapClient(coapRequest.GetUri());
+			System.out.println("GET URI: "+coapRequest.GetUri());
 			CoapResponse response = client.get();
 			coapRequest.SetResponse(response);
-			CoapMediator.GetInstance().RegisterResponse(coapRequest);
+			CoapMediator.RegisterResponse(coapRequest);
 		}		
 	}
 	
 	// the specific PUT class
-	public class MediatorThreadPut extends MediatorThread{
+	public static class MediatorThreadPut extends MediatorThread{
 		
 		public MediatorThreadPut(CoapRequestPut coapRequest){
 			super(coapRequest);
@@ -100,10 +89,10 @@ public class CoapMediator {
 		public void run(){
 			CoapClient client = new CoapClient(coapRequest.GetUri());
 			CoapRequestPut putRequest = (CoapRequestPut) coapRequest;
+			System.out.println("PUT URI: "+coapRequest.GetUri() + " PAYLOAD: " + putRequest.getPayload());
 			CoapResponse response = client.put(putRequest.getPayload(), putRequest.getPayloadFormat());
 			coapRequest.SetResponse(response);
-			CoapMediator.GetInstance().RegisterResponse(coapRequest);			
+			CoapMediator.RegisterResponse(coapRequest);			
 		}	
 	}
-
 }

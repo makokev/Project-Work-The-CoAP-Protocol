@@ -1,6 +1,5 @@
 package main;
 
-
 import coap.mediator.CoapMediator;
 import coap.mediator.CoapMediatorResponse;
 import coap.mediator.CoapRequestID;
@@ -10,47 +9,57 @@ import java.net.*;
 
 public class MediatorMain {
 
+	public static final int LOCAL_PORT = 5633;
+	public static final String HEADER_SEPARATOR = "-";
+	public static final String ARGUMENT_SEPARATOR = "_";
+
 	public static void main(String[] args) throws IOException {
 		@SuppressWarnings("resource")
-		ServerSocket welcomeSocket = new ServerSocket(5633);
-
+		ServerSocket welcomeSocket = new ServerSocket(LOCAL_PORT);
+		
 		while (true) {
+			System.out.println("Mediator: wait for connection..");
 			Socket connectionSocket = welcomeSocket.accept();
 			DataInputStream inFromClient = new DataInputStream((connectionSocket.getInputStream()));
-			DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 			String clientMessage = inFromClient.readUTF();
-			String requestType = clientMessage.split(":")[0];
+			System.out.println("Message received: '"+clientMessage+"'");
+			String requestType = clientMessage.split(HEADER_SEPARATOR)[0];
+			System.out.println("Request type: '"+requestType+"'.");
 			String string, uri, payload;
 			int payloadFormat, requestId;
 			
 			switch(requestType){
-				case "GET" : // message format:			GET:uri
-					string = clientMessage.split(":")[1];
-					uri = string.split(",")[0];
-					
-					GetThread threadGet = new GetThread(outToClient, uri);
+				case "GET" :
+					// message format:	GET-uri
+					string = clientMessage.split(HEADER_SEPARATOR)[1];
+					uri = string.split(ARGUMENT_SEPARATOR)[0];
+					System.out.println("GetRequest received..");
+					GetThread threadGet = new GetThread(connectionSocket, uri);
 					threadGet.start();
 					break;
 					
-				case "PUT" : // message format:			PUT:uri,payload,payloadFormat
-					string = clientMessage.split(":")[1];
-					uri = string.split(",")[0];
-					payload = string.split(",")[1];
-					payloadFormat = Integer.parseInt(string.split(",")[2]);
+				case "PUT" :
+					// message format:	PUT-uri_payload_payloadFormat
+					string = clientMessage.split(HEADER_SEPARATOR)[1];
+					uri = string.split(ARGUMENT_SEPARATOR)[0];
+					payload = string.split(ARGUMENT_SEPARATOR)[1];
+					payloadFormat = Integer.parseInt(string.split(ARGUMENT_SEPARATOR)[2]);
+					System.out.println("PutRequest received..");
 					
-					PutThread threadPut = new PutThread(outToClient, uri, payload, payloadFormat);
+					PutThread threadPut = new PutThread(connectionSocket, uri, payload, payloadFormat);
 					threadPut.start();
 					break;
 					
-				case "RESPONSE" : // message format:	RESPONSE:uri,requestId
-					string = clientMessage.split(":")[1];
-					uri = string.split(",")[0];
-					requestId = Integer.parseInt(string.split(",")[1]);
+				case "RESPONSE" :
+					// message format:	RESPONSE-uri_requestId
+					string = clientMessage.split(HEADER_SEPARATOR)[1];
+					uri = string.split(ARGUMENT_SEPARATOR)[0];
+					requestId = Integer.parseInt(string.split(ARGUMENT_SEPARATOR)[1]);
+					System.out.println("ResponseRequest received..");
 					
-					ResponseThread thread = new ResponseThread(outToClient, requestId, uri);
+					ResponseThread thread = new ResponseThread(connectionSocket, requestId, uri);
 					thread.start();
 					break;
-					
 			}
 		}
 	}
@@ -58,36 +67,48 @@ public class MediatorMain {
 
 class GetThread extends Thread
 {
+	private static final String HEADER_SEPARATOR = MediatorMain.HEADER_SEPARATOR;
+	private Socket clientSocket;
 	private DataOutputStream out;
 	private String uri;
 	
-	public GetThread(DataOutputStream out, String uri){
-		this.out = out;
+	public GetThread(Socket clientSocket, String uri) throws IOException{
+		this.clientSocket = clientSocket;
+		this.out = new DataOutputStream(clientSocket.getOutputStream());
 		this.uri = uri;
 	}
 	
 	@Override
 	public void start(){
-		CoapMediator mediator = CoapMediator.GetInstance();
-		CoapRequestID id = mediator.Get(uri);
+		// message format:		REQUEST_ID-id
 		
-		try{ // message format:		REQUEST_ID:id
-			out.writeUTF("REQUEST_ID:"+id.getNumericId());
+		CoapRequestID id = CoapMediator.Get(uri);
+		System.out.println("GetThread started.");
+		String message = "REQUEST_ID"+HEADER_SEPARATOR+id.getNumericId();
+		try{
+			out.writeUTF(message);
+			System.out.println("Message --> "+message);
+			clientSocket.close();
 		} catch(Exception e){
 			System.out.println("GetThread: out socket error.");
 		}
+		
 	}
 }
 
 class PutThread extends Thread
 {
+	private static final String HEADER_SEPARATOR = MediatorMain.HEADER_SEPARATOR;
+
+	private Socket clientSocket;
 	private DataOutputStream out;
 	private String uri;
 	private String payload;
 	private int payloadFormat;
-	
-	public PutThread(DataOutputStream out, String uri, String payload, int payloadFormat){
-		this.out = out;
+
+	public PutThread(Socket clientSocket, String uri, String payload, int payloadFormat) throws IOException{
+		this.clientSocket = clientSocket;
+		this.out = new DataOutputStream(clientSocket.getOutputStream());
 		this.uri = uri;
 		this.payload = payload;
 		this.payloadFormat = payloadFormat;
@@ -95,11 +116,15 @@ class PutThread extends Thread
 	
 	@Override
 	public void start(){
-		CoapMediator mediator = CoapMediator.GetInstance();
-		CoapRequestID id = mediator.Put(uri, payload, payloadFormat);
+		// message format:		REQUEST_ID-id
 		
-		try{ // message format:		REQUEST_ID:id
-			out.writeUTF("REQUEST_ID:"+id.getNumericId());
+		CoapRequestID id = CoapMediator.Put(uri, payload, payloadFormat);
+		System.out.println("PutThread started.");
+		String message = "REQUEST_ID"+HEADER_SEPARATOR+id.getNumericId();
+		try{
+			out.writeUTF(message);
+			System.out.println("Message --> "+message);
+			clientSocket.close();
 		} catch(Exception e){
 			System.out.println("GetThread: out socket error.");
 		}
@@ -108,34 +133,49 @@ class PutThread extends Thread
 
 class ResponseThread extends Thread
 {
+	private static final String HEADER_SEPARATOR = MediatorMain.HEADER_SEPARATOR;
+	private static final String ARGUMENT_SEPARATOR = MediatorMain.ARGUMENT_SEPARATOR;
+
+	private Socket clientSocket;
 	private DataOutputStream out;
 	private int requestId;
 	private String uri;
 	
-	public ResponseThread(DataOutputStream out, int requestId, String uri){
-		this.out = out;
+	public ResponseThread(Socket clientSocket, int requestId, String uri) throws IOException{
+		this.clientSocket = clientSocket;
+		this.out = new DataOutputStream(clientSocket.getOutputStream());
 		this.requestId = requestId;
 		this.uri = uri;
 	}
 	
 	@Override
 	public void start(){
-		CoapMediatorResponse response = null;
-		CoapMediator mediator = CoapMediator.GetInstance();
-		CoapRequestID id = new CoapRequestID(requestId, uri);
-		do {
-			response = mediator.GetResponse(id);
-		} while(response == null);
-		
-		try{
-			// message format:		RESPONSE:SUCCESS,responseText
-			// 									or
-			// message format:		RESPONSE:FAILURE,failureMessage
+		// message format:		RESPONSE-SUCCESS_responseText
+		// 									or
+		// message format:		RESPONSE-FAILURE_failureMessage
 			
+		CoapMediatorResponse response = null;
+		CoapRequestID id = new CoapRequestID(requestId, uri);
+		System.out.println("ResponseThread started.");
+		try{
+			do {
+				response = CoapMediator.GetResponse(id);		
+				if(response == null) {
+					System.out.print(".");
+					Thread.sleep(500);
+				}
+			} while(response == null);
+			System.out.println();
+		
+			String message = "RESPONSE"+HEADER_SEPARATOR;
 			if(response.isResponseValid())
-				out.writeUTF("RESPONSE:SUCCESS,"+response.getResponse().getResponseText());
+				message += "SUCCESS"+ARGUMENT_SEPARATOR+response.getResponse().getResponseText();
 			else
-				out.writeUTF("RESPONSE:FAILURE,Response failed!");				
+				message += "FAILURE"+ARGUMENT_SEPARATOR+"Response failed!";
+			
+			out.writeUTF(message);
+			System.out.println("Message --> "+message);
+			clientSocket.close();
 		} catch(Exception e){
 			System.out.println("ResponseThread: out socket error.");
 		}

@@ -26,4 +26,13 @@ public class CoapRequestID {
 		return uri;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {		
+		return (obj instanceof CoapRequestID) ? this.equals((CoapRequestID) obj) : false;
+	}
+	
+	public boolean equals(CoapRequestID request) {
+		return this.getNumericId() == request.getNumericId() &&
+				this.getUri().toString().compareTo(request.getUri().toString()) == 0;
+	}	
 }

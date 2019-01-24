@@ -3,14 +3,14 @@ package coap.mediator;
 import java.util.HashMap;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResponse;
-import org.eclipse.californium.core.coap.CoAP.ResponseCode;
+import coap.mediator.CoapMediatorResponse.CoapMediatorResponseCode;
 
 public class CoapMediator {
 	
 	private static CoapMediator instance = null;
 	private static HashMap<CoapRequestID, CoapRequest> map;
 	private static Counter counter;
-		
+
 	// used by clients to get an instance of the mediator
 	synchronized public static CoapMediator GetInstance(){
 		if(instance == null){
@@ -20,7 +20,7 @@ public class CoapMediator {
 		}
 		return instance;
 	}
-	
+
 	// used by clients to send a GET-REQUEST
 	synchronized public CoapRequestID Get(String uri){
 		CoapRequestGet coapRequest = new CoapRequestGet(counter.GetCount(), uri);
@@ -29,7 +29,7 @@ public class CoapMediator {
 		(instance.new MediatorThreadGet(coapRequest)).start();
 		return coapRequest.GetRequestId();
 	}
-	
+
 	// used by clients to send a PUT-REQUEST
 	synchronized public CoapRequestID Put(String uri, String payload, int payloadFormat){
 		CoapRequestPut coapRequest = new CoapRequestPut(counter.GetCount(), uri, payload, payloadFormat);
@@ -39,26 +39,21 @@ public class CoapMediator {
 		return coapRequest.GetRequestId();
 	}
 
-	// used by clients to obtain the response if exists, otherwise a null is returned
+	// used by clients to obtain the response if it is available
 	synchronized public CoapMediatorResponse GetResponse(CoapRequestID coapID){
-		 if(isIllegalRequest(coapID))
-	            return new CoapMediatorResponse(null, false);
+		 if(coapID.getNumericId() >= counter.GetCount() || coapID.getNumericId() < 0)
+			 return new CoapMediatorResponse(null, CoapMediatorResponseCode.RESPONSE_ILLEGAL);
+		 if(!map.containsKey(coapID))
+			 return new CoapMediatorResponse(null, CoapMediatorResponseCode.RESPONSE_ALREADY_READ);
+		 
 		CoapRequest request = map.get(coapID);
-		if(request.IsResponseReady()){
-			map.remove(coapID); // the response is readable only one time!
-			return new CoapMediatorResponse(request.GetResponse(), ResponseCode.isSuccess(request.GetResponse().getCode()));
-		}
-		else
-			return null;
+		if(!request.IsResponseReady())
+			return new CoapMediatorResponse(null, CoapMediatorResponseCode.RESPONSE_NOT_AVAILABLE_YET);
+		
+		map.remove(coapID); // the response is readable only one time!
+		return new CoapMediatorResponse(request.GetResponse(), CoapMediatorResponseCode.RESPONSE_AVAILABLE);
 	}
-	
-	private boolean isIllegalRequest(CoapRequestID coapID){
-		int id = coapID.getNumericId();
-		if(id >= counter.GetCount() || id < 0 || !map.containsKey(coapID) )
-			return true;
-		return false;
-	}
-	
+
 	// used by threads to update the map with the received coap response
 	synchronized protected void RegisterResponse(CoapRequest coapRequest){
 		map.put(coapRequest.GetRequestId(), coapRequest); // update the value of coapRequest

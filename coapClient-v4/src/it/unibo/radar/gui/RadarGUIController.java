@@ -138,14 +138,20 @@ public class RadarGUIController extends JFrame {
 			CoapMediator mediator = CoapMediator.GetInstance();
 			if(requestIDs.containsKey(id)){
 				CoapMediatorResponse response = mediator.GetResponse(requestIDs.get(id));
-				requestIDs.remove(id);
-				txtArea.append("RESPONSE_VALUE: " + response.getResponse().getResponseText() + "\n");
-			}else
+				if(response.isValid()){
+					if(response.isAvailable()){
+						requestIDs.remove(id);
+						txtArea.append("RESPONSE_VALUE: " + response.getResponse().getResponseText() + "\n");
+					}
+					else
+						txtArea.append("RESPONSE_ERROR: Response not available yet.\n");
+				}
+			}
+			else
 				txtArea.append("ERROR: RequestID not correct.\n");
 		}
 		txtResponseId.setText("");
 	}
-	
 }
 
 

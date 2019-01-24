@@ -1,2 +1,0 @@
-plan(1,init, sentence(true,delay( 2000) ,'','' ))
-plan(2,init, sentence(true,forward(client_actor, stopMessage,stopMessage),'','' ))

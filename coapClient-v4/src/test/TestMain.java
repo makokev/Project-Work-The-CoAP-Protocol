@@ -1,10 +1,6 @@
 package test;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
-
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import coap.mediator.*;
 import it.unibo.radar.coap.RadarPoint;
@@ -12,101 +8,62 @@ import it.unibo.radar.coap.RadarPoint;
 public class TestMain {
 
 	private static final String URI_STRING = "coap://localhost:5683/RadarPoint";
-	private static final String REMOTE_MEDIATOR_HOST = "localhost";
-	private static final int REMOTE_MEDIATOR_PORT = 5633;
-	private static final String HEADER_SEPARATOR = "-";
-	private static final String ARGUMENT_SEPARATOR = "_";
 	
 	public static void main(String[] args) throws IOException {
 		
-		try {
-			@SuppressWarnings("resource")
-			Socket clientSocket = new Socket(REMOTE_MEDIATOR_HOST, REMOTE_MEDIATOR_PORT);
-			clientSocket.setSoTimeout(60000); // 60 seconds
-			DataOutputStream outToMediator = new DataOutputStream(clientSocket.getOutputStream());
-			DataInputStream inFromMediator = new DataInputStream(clientSocket.getInputStream());
+		CoapMediatorResponse response = null;
+		CoapMediator mediator = CoapMediator.GetInstance();
 		
-			
-			System.out.println("- GET");
-			String message = "GET"+HEADER_SEPARATOR+URI_STRING;
-			System.out.println("Message --> "+message);
-			outToMediator.writeUTF(message);
-			System.out.println("Message sent.");
-			message = inFromMediator.readUTF();
-			System.out.println("Message <-- "+message);
-			String type = message.split(HEADER_SEPARATOR)[0];
-			CoapRequestID requestId = null;
-			if(type.equals("REQUEST_ID"))
-			{
-				int id = Integer.parseInt(message.split(HEADER_SEPARATOR)[1]);
-				requestId = new CoapRequestID(id, URI_STRING);
-				System.out.println("REQUEST_GET ID: " + requestId.getNumericId());
-				clientSocket.close();
-			}else {
-				System.out.println("REQUEST_GET: Response error.");
-				System.exit(-1);
-			}
-
-			// ------------------------------------------------------------------------------------
-			
-			System.out.println("- PUT");
-			clientSocket = new Socket(REMOTE_MEDIATOR_HOST, REMOTE_MEDIATOR_PORT);
-			outToMediator = new DataOutputStream(clientSocket.getOutputStream());
-			inFromMediator = new DataInputStream(clientSocket.getInputStream());
-			RadarPoint point = new RadarPoint(50,90);
-			message = "PUT"+HEADER_SEPARATOR+URI_STRING+ARGUMENT_SEPARATOR+point.compactToString()+ARGUMENT_SEPARATOR+MediaTypeRegistry.TEXT_PLAIN;
-			System.out.println("Message --> "+message);
-			outToMediator.writeUTF(message);
-			System.out.println("Message sent.");
-			message = inFromMediator.readUTF();
-			System.out.println("Message <-- "+message);
-			type = message.split(HEADER_SEPARATOR)[0];
-			if(type.equals("REQUEST_ID"))
-			{
-				int id = Integer.parseInt(message.split(HEADER_SEPARATOR)[1]);
-				requestId = new CoapRequestID(id, URI_STRING);
-				System.out.println("REQUEST_PUT ID: " + requestId.getNumericId());
-				clientSocket.close();
-			}else{
-				System.out.println("REQUEST_PUT: Response error.");	
-				System.exit(-1);
-			}
-			
-		// ------------------------------------------------------------------------------------
-				
-		System.out.println("- RESPONSE");
-		clientSocket = new Socket(REMOTE_MEDIATOR_HOST, REMOTE_MEDIATOR_PORT);
-		outToMediator = new DataOutputStream(clientSocket.getOutputStream());
-		inFromMediator = new DataInputStream(clientSocket.getInputStream());
+		// Sending GET1
+		CoapRequestID id1 = mediator.Get(URI_STRING);
 		
-		message = "RESPONSE"+HEADER_SEPARATOR+URI_STRING+ARGUMENT_SEPARATOR+requestId.getNumericId();
-		System.out.println("Message --> "+message);
-		outToMediator.writeUTF(message);
-		System.out.println("Message sent.");
-		message = inFromMediator.readUTF();
-		System.out.println("Message <-- "+message);
-		type = message.split(HEADER_SEPARATOR)[0];
-		if(type.equals("RESPONSE"))
-		{
-			String result = message.split(HEADER_SEPARATOR)[1].split(ARGUMENT_SEPARATOR)[0];
-			String responseText = message.split(HEADER_SEPARATOR)[1].split(ARGUMENT_SEPARATOR)[1];
-			if(result.equals("SUCCESS"))
-				System.out.println("RESPONSE_VALUE: " + responseText);
-			else
-				System.out.println("RESPONSE_ERROR: " + responseText);
-			clientSocket.close();
-		}else{
-			System.out.println("REQUEST_RESPONSE: Response error.");
-			System.exit(-1);
-		}
+		// Sending PUT2
+		RadarPoint point = new RadarPoint(50,200);
+		CoapRequestID id2 = mediator.Put(URI_STRING, point.compactToString(), MediaTypeRegistry.TEXT_PLAIN);
+		
+		// Sending GET3
+		CoapRequestID id3 = mediator.Get(URI_STRING);
+		
+		// Reading GET3
+		do {
+			response = mediator.GetResponse(id3);
+		} while(response == null);
+		if(response.isValid()){
+			point = RadarPoint.convertFromString(response.getResponse().getResponseText());
+			System.out.println("Get3: "+point.toString());
+		} else
+			System.out.println("Get3: NO VALID RESPONSE!");
+		
+		// Reading PUT2
+		do {
+			response = mediator.GetResponse(id2);
+		} while(response == null);
+		
+		if(response.isValid())
+			System.out.println("Put2: Success!");
+		else
+			System.out.println("Put2: Failed!");
+		
+		// Reading GET1
+		do {
+			response = mediator.GetResponse(id1);
+		} while(response == null); // no response available yet
+		
+		point = RadarPoint.convertFromString(response.getResponse().getResponseText());
+		System.out.println("Get1: "+point.toString());
+		
+		// Re-reading GET1
+		do {
+			response = mediator.GetResponse(id1);
+		} while(response == null); // no response available yet
+		
+		if(!response.isValid())
+			System.out.println("Get1 re-read failure: test passed!\n");
+		else
+			System.out.println("Get1 re-read succeded: test NOT passed!\n");
 		
 		System.out.println("\n--- END ---");
 		System.exit(0);
-	
-	} catch (Exception e) {
-		e.printStackTrace();
-		System.out.println("Socket: creation error.\n");
 	}
 
-	}
 }

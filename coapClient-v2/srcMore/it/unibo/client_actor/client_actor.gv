@@ -11,18 +11,10 @@ digraph finite_state_machine {
 	
 	init [ color = red ][ fontcolor = red ][ penwidth = 3 ]
 	running [ color = black ][ fontcolor = black ][ penwidth = 3 ]
-	getValue [ color = black ][ fontcolor = black ][ penwidth = 3 ]
-	readValue [ color = black ][ fontcolor = black ][ penwidth = 3 ]
-	putValue [ color = black ][ fontcolor = black ][ penwidth = 3 ]
 	stopping [ color = blue ][ fontcolor = blue ][ penwidth = 3 ]
 	
-	running -> putValue [ label = "put" ][ color = red ][ fontcolor = red ][ dir = both ]
-	readValue -> running [ label = "switch" ][ color = black ][ fontcolor = black ]
 	running -> stopping [ label = "stopMessage" ][ color = black ][ fontcolor = black ]
-	getValue -> handleToutBuiltIn [ label = "timeout(2000)" ][ color = green ][ fontcolor = green ]
 	running -> running [ label = "repeat "][ style = dashed ][ color = blue ][ fontcolor = blue ]
 	init -> running [ label = "switch" ][ color = black ][ fontcolor = black ]
-	running -> getValue [ label = "get" ][ color = red ][ fontcolor = red ][ dir = both ]
-	getValue -> readValue [ label = "value" ][ color = black ][ fontcolor = black ]
 	running -> handleToutBuiltIn [ label = "timeout(3600000)" ][ color = green ][ fontcolor = green ]
 }

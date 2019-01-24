@@ -77,7 +77,7 @@ public abstract class AbstractClient_simple_actor extends QActor {
 	    try{	
 	     PlanRepeat pr = PlanRepeat.setUp("init",-1);
 	    	String myselfName = "init";  
-	    	temporaryStr = "\"radarCoapClientSimple start.\"";
+	    	temporaryStr = "\"coapClientSimple: start.\"";
 	    	println( temporaryStr );  
 	    	it.unibo.radar.coap.client.coapRadarClientSimple.initClient( myself  );
 	    	//switchTo putValue
@@ -93,9 +93,9 @@ public abstract class AbstractClient_simple_actor extends QActor {
 	    try{	
 	     PlanRepeat pr = PlanRepeat.setUp("putValue",-1);
 	    	String myselfName = "putValue";  
-	    	temporaryStr = "\"PUT\"";
+	    	temporaryStr = "\"coapClientSimple: Emitted PUT: value(45,90).\"";
 	    	println( temporaryStr );  
-	    	it.unibo.radar.coap.client.coapRadarClientSimple.putResourceValue( myself ,"50", "40"  );
+	    	it.unibo.radar.coap.client.coapRadarClientSimple.putResourceValue( myself ,"45", "90"  );
 	    	//switchTo getValue
 	        switchToPlanAsNextState(pr, myselfName, "client_simple_actor_"+myselfName, 
 	              "getValue",false, false, null); 
@@ -109,7 +109,7 @@ public abstract class AbstractClient_simple_actor extends QActor {
 	    try{	
 	     PlanRepeat pr = PlanRepeat.setUp("getValue",-1);
 	    	String myselfName = "getValue";  
-	    	temporaryStr = "\"GET\"";
+	    	temporaryStr = "\"coapClientSimple: Emitted GET.\"";
 	    	println( temporaryStr );  
 	    	it.unibo.radar.coap.client.coapRadarClientSimple.getResourceValue( myself  );
 	    	//bbb
@@ -127,7 +127,9 @@ public abstract class AbstractClient_simple_actor extends QActor {
 	    try{	
 	     PlanRepeat pr = PlanRepeat.setUp("printValue",-1);
 	    	String myselfName = "printValue";  
-	    	temporaryStr = "\"PRINT VALUE:\"";
+	    	temporaryStr = "\"coapClientSimple: Response GET received.\"";
+	    	println( temporaryStr );  
+	    	temporaryStr = "\"coapClientSimple: Distance = \"";
 	    	println( temporaryStr );  
 	    	//onMsg 
 	    	setCurrentMsgFromStore(); 
@@ -142,6 +144,8 @@ public abstract class AbstractClient_simple_actor extends QActor {
 	    			    		  	Term.createTerm(currentMessage.msgContent()), parg);
 	    		if( parg != null ) println( parg );
 	    	}
+	    	temporaryStr = "\"coapClientSimple: Angle = \"";
+	    	println( temporaryStr );  
 	    	//onMsg 
 	    	setCurrentMsgFromStore(); 
 	    	curT = Term.createTerm("value(Distance,Angle)");
@@ -155,7 +159,9 @@ public abstract class AbstractClient_simple_actor extends QActor {
 	    			    		  	Term.createTerm(currentMessage.msgContent()), parg);
 	    		if( parg != null ) println( parg );
 	    	}
-	    	repeatPlanNoTransition(pr,myselfName,"client_simple_actor_"+myselfName,false,false);
+	    	//switchTo stopping
+	        switchToPlanAsNextState(pr, myselfName, "client_simple_actor_"+myselfName, 
+	              "stopping",false, false, null); 
 	    }catch(Exception e_printValue){  
 	    	 println( getName() + " plan=printValue WARNING:" + e_printValue.getMessage() );
 	    	 QActorContext.terminateQActorSystem(this); 
@@ -166,7 +172,7 @@ public abstract class AbstractClient_simple_actor extends QActor {
 	    try{	
 	     PlanRepeat pr = PlanRepeat.setUp("stopping",-1);
 	    	String myselfName = "stopping";  
-	    	temporaryStr = "\"radarCoapClient stop.\"";
+	    	temporaryStr = "\"coapClientSimple: stop.\"";
 	    	println( temporaryStr );  
 	    	repeatPlanNoTransition(pr,myselfName,"client_simple_actor_"+myselfName,false,false);
 	    }catch(Exception e_stopping){  

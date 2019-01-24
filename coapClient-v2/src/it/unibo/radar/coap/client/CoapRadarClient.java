@@ -5,19 +5,19 @@ import java.net.URISyntaxException;
 
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResponse;
-import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
+import org.eclipse.californium.core.coap.MediaTypeRegistry;
 
 import it.unibo.radar.coap.RadarPoint;
 
 public class CoapRadarClient {
 	
-	private static final String URI_STRING = "coap://localhost:5683/RadarPoint";
-	private static CoapRadarClient instance;
-	private CoapClient client;
+	public static final String URI_STRING = "coap://localhost:5683/RadarPoint";
+	private static CoapRadarClient instance = null;
+	private CoapClient client;	
 	
 	public static CoapRadarClient getInstance(){
-		if(instance == null)
+		if(null == instance)
 			instance = new CoapRadarClient();
 		return instance;
 	}
@@ -35,25 +35,21 @@ public class CoapRadarClient {
 	
 	public RadarPoint getResourceValue(){
 		CoapResponse response = client.get();
-		if (response != null) {
-			RadarPoint point = RadarPoint.convertFromString(response.getResponseText());
-			return point;
-		} else {
-			System.out.println("No response received.");
-			return null;
-		}	
+		if (response != null)
+			return RadarPoint.convertFromString(response.getResponseText());
+		System.out.println("No response received.");
+		return null;
 	}
 	
 	public boolean putResourceValue(RadarPoint point){
 		if(point != null){
 			CoapResponse response = client.put(point.compactToString(), MediaTypeRegistry.TEXT_PLAIN);
 			if(response != null) {
-				if(response.getCode() == ResponseCode.CHANGED){
+				if(response.getCode() == ResponseCode.CHANGED)
 					System.out.println("Resource's value changed.");
-					return true;
-				}
 				else
 					System.out.println("Resource's value NOT changed.");
+				return response.getCode() == ResponseCode.CHANGED;
 			}
 			else
 				System.out.println("No response received.");
@@ -63,5 +59,3 @@ public class CoapRadarClient {
 		return false;
 	}
 }
-
-

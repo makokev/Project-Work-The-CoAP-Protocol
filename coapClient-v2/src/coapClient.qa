@@ -1,59 +1,27 @@
 System coapClient
 
-Event get : get
-Event put : put(Distance, Angle)
-Event value_event : value(Distance, Angle)
-
-Dispatch value : value(Distance, Angle)
-Dispatch stopMessage : stopMessage
+Event stopMessage : stopMessage
 
 Context ctxCoapClient ip [ host="localhost" port=8055 ]
-
-EventHandler handlevalue for value_event {
-	forwardEvent client_actor -m value
-};
 
 QActor client_actor context ctxCoapClient{
 	
 	Plan init normal
 	[ 
-		println("radarCoapClient start.");
-		javaRun it.unibo.radar.coap.client.coapRadarClientSimple.initClient();
+		println("radarCoapClient: start.");
 		javaRun it.unibo.radar.gui.radarGUIController.startGUI()
 	]
 	switchTo running
 	
-	Plan running []
+	Plan running [ ]
 	transition stopAfter 3600000
-		whenEvent get -> getValue,
-		whenEvent put -> putValue,
-		whenMsg stopMessage -> stopping
+		whenEvent stopMessage -> stopping
 	finally repeatPlan
-	
-	
-	Plan getValue resumeLastPlan
-	[
-		println("get");
-		javaRun it.unibo.radar.coap.client.coapRadarClientSimple.getResourceValue()
-	]
-	transition stopAfter 2000
-		whenMsg value -> readValue
-	
-	Plan putValue resumeLastPlan
-	[
-		println("put");
-		onEvent put : put(Distance, Angle) -> javaRun it.unibo.radar.coap.client.coapRadarClientSimple.putResourceValue(Distance, Angle)
-	]
-
-	Plan readValue
-	[
-		println("readValue");
-		onMsg value : value(Distance, Angle) -> javaRun it.unibo.radar.gui.radarGUIController.setValue(Distance, Angle)
-	]
-	switchTo running
-	
+		
 	Plan stopping
 	[
-		println("radarCoapClient stop.")
+		println("radarCoapClient: stop.")
 	]
 }
+
+

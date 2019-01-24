@@ -10,9 +10,8 @@ QActor server_actor context ctxCoapServer{
 	
 	Plan init normal
 	[
-		println("radarCoapServer start.");
-		javaRun it.unibo.radar.coap.server.coapRadarServer.startServer();
-		emit polar : p(0,0)
+		println("radarCoapServer: start.");
+		javaRun it.unibo.radar.coap.server.coapRadarServer.startServer()
 	]
 	switchTo running
 	
@@ -22,7 +21,7 @@ QActor server_actor context ctxCoapServer{
 
 	Plan stopping
 	[
-		println("radarCoapServer stop.");
+		println("radarCoapServer: stop.");
 		javaRun it.unibo.radar.coap.server.coapRadarServer.stopServer()
 	]
 }

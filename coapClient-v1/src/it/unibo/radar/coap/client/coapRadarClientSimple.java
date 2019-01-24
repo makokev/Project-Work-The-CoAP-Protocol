@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.californium.core.CoapClient;
-import org.eclipse.californium.core.CoapHandler;
 import org.eclipse.californium.core.CoapResponse;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
@@ -55,20 +54,4 @@ public class coapRadarClientSimple {
 		else
 			System.out.println("Invalid RadarPoint");
 	}
-}
-
-class ChangedHandler implements CoapHandler{
-
-	@Override
-	public void onLoad(CoapResponse response) {
-		System.out.println("I'm notified by the server. Resource's changed!");
-		System.out.println("New resource's value = "+response.getResponseText());
-		
-	}
-
-	@Override
-	public void onError() {
-		System.out.println("Notification error.");		
-	}
-	
 }

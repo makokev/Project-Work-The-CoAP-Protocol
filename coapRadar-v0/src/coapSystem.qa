@@ -1,50 +1,115 @@
-System coapSystemV0
+System systemV0
 
-Event polar : p( Distance, Angle  )
+Event polar : p( Distance, Angle  ) 		// between server and RadarDisplay
 
-Dispatch value : value ( Discance, Angle )
+Dispatch getValue : getValue				// from client to server
+Dispatch putValue : value(Distance, Angle)	// from client to server
+Dispatch sendValue : value ( Discance, Angle )	// from server to client
 
 
-Context ctxCoapSystemV0 ip [ host="localhost" port=8000 ] 
+Context ctxSystemV0 ip [ host="localhost" port=8000 ] 
 Context ctxRadarBase   ip [ host="localhost" port=8033 ] -standalone 
 
 
-QActor coap_server context ctxCoapSystemV0 {
+QActor server context ctxSystemV0 {
+	Rules
+	{
+		point(X,Y) :- distance(X), angle(Y).
+	}
+	
 	Plan init normal
 	[
-		println("coap_server start.")
+		println("server: start.");
+		emit polar : p(0,0);
+		addRule distance(0);
+		addRule angle(0);
+		delay 1000
 	]
 	switchTo waitingMessage
 	
 	Plan waitingMessage
 	[
-		println("Waiting message...")
+		println("server: Waiting message...")
 	]
 	transition stopAfter 360000
-		whenMsg value -> messageReceived
+		whenMsg putValue -> putReceived,
+		whenMsg getValue -> getReceived
 	finally repeatPlan
 	
-	Plan messageReceived
+	Plan putReceived resumeLastPlan
 	[
-		println("Message received. (Distance, Angle):");
-		onMsg value : value(Distance, Angle) -> println(Distance);
-		onMsg value : value(Distance, Angle) -> println(Angle);
-		onMsg value : value(Distance, Angle) -> emit polar : p(Distance, Angle)
+		println("server: Put received.");
+		println("server: Distance = ");
+		onMsg putValue : value(Distance, Angle) -> println(Distance);
+		println("server: Angle = ");
+		onMsg putValue : value(Distance, Angle) -> println(Angle);
+		removeRule distance(_);
+		removeRule angle(_);
+		onMsg putValue : value(Distance, Angle) -> addRule distance(Distance);
+		onMsg putValue : value(Distance, Angle) -> addRule angle(Angle);
+		onMsg putValue : value(Distance, Angle) -> emit polar : p(Distance, Angle)
+	]
+	
+	Plan getReceived resumeLastPlan
+	[
+		println("server: Get received.");
+		[ !? point(X,Y) ] forward client -m sendValue : value(X,Y);
+		println("server: Send value:");
+		println("server: Distance = ");
+		[ !? point(X,Y) ] println(X);
+		println("server: Angle = ");
+		[ !? point(X,Y) ] println(Y)
 	]
 }
 
-QActor coap_client context ctxCoapSystemV0{
+QActor client context ctxSystemV0{
 	Plan init normal
 	[
-		println("coap_client start.");
+		println("client: start.");
 		delay 500
+	]
+	switchTo getInitialValue
+	
+	Plan getInitialValue
+	[
+		forward server -m getValue : getValue;
+		println("client: Emitted GET.")
+	]
+	transition stopAfter 360000
+		whenMsg sendValue -> receiveInitialValue
+	
+	Plan receiveInitialValue
+	[
+		println("client: Response GET received.");
+		println("client: Distance = ");
+		onMsg sendValue : value(Distance, Angle) -> println(Distance);
+		println("client: Angle = ");
+		onMsg sendValue : value(Distance, Angle) -> println(Angle)
 	]
 	switchTo sendingMessage
 	
 	Plan sendingMessage
 	[
-		forward coap_server -m value : value(10,10);
-		println("Message sent: value(10,10).");
-		println("Stopping")
+		forward server -m putValue : value(45,90);
+		println("client: Emitted PUT: value(45,90).");
+		println("client: Verifying update...");
+		forward server -m getValue : getValue
+	]
+	transition stopAfter 360000
+		whenMsg sendValue -> receiveValue
+	
+	Plan receiveValue
+	[
+		println("client: Response GET received.");
+		println("client: Distance = ");
+		onMsg sendValue : value(Distance, Angle) -> println(Distance);
+		println("client: Angle = ");
+		onMsg sendValue : value(Distance, Angle) -> println(Angle)
+	]
+	switchTo clientStop
+	
+	Plan clientStop
+	[
+		println("client: Client stopped.")
 	]
 }

@@ -75,11 +75,9 @@ public abstract class AbstractServer_actor extends QActor {
 	    try{	
 	     PlanRepeat pr = PlanRepeat.setUp("init",-1);
 	    	String myselfName = "init";  
-	    	temporaryStr = "\"radarCoapServer start.\"";
+	    	temporaryStr = "\"radarCoapServer: start.\"";
 	    	println( temporaryStr );  
 	    	it.unibo.radar.coap.server.coapRadarServer.startServer( myself  );
-	    	temporaryStr = QActorUtils.unifyMsgContent(pengine, "p(Distance,Angle)","p(0,0)", guardVars ).toString();
-	    	emit( "polar", temporaryStr );
 	    	//switchTo running
 	        switchToPlanAsNextState(pr, myselfName, "server_actor_"+myselfName, 
 	              "running",false, false, null); 
@@ -108,7 +106,7 @@ public abstract class AbstractServer_actor extends QActor {
 	    try{	
 	     PlanRepeat pr = PlanRepeat.setUp("stopping",-1);
 	    	String myselfName = "stopping";  
-	    	temporaryStr = "\"radarCoapServer stop.\"";
+	    	temporaryStr = "\"radarCoapServer: stop.\"";
 	    	println( temporaryStr );  
 	    	it.unibo.radar.coap.server.coapRadarServer.stopServer( myself  );
 	    	repeatPlanNoTransition(pr,myselfName,"server_actor_"+myselfName,false,false);

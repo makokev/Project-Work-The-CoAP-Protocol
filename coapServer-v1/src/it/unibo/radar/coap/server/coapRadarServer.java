@@ -49,6 +49,8 @@ public class coapRadarServer extends CoapServer{
 		    	  try {
 		              coapRadarServer server = new coapRadarServer(); // create coap server
 		              server.addEndpoints(); // add endpoints on all IP addresses
+		              RadarPoint radarPoint = new RadarPoint();
+		              ACTOR.emit("polar", "p("+radarPoint.compactToString()+")");
 		              server.start();
 		              System.out.println("CoapRadarServer started (port="+COAP_PORT+").");
 		          } catch (SocketException e) {

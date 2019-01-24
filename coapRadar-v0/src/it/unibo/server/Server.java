@@ -2,12 +2,12 @@
 /*
 This code is generated only ONCE
 */
-package it.unibo.coap_client;
+package it.unibo.server;
 import it.unibo.is.interfaces.IOutputEnvView;
 import it.unibo.qactors.QActorContext;
 
-public class Coap_client extends AbstractCoap_client { 
-	public Coap_client(String actorId, QActorContext myCtx, IOutputEnvView outEnvView )  throws Exception{
+public class Server extends AbstractServer { 
+	public Server(String actorId, QActorContext myCtx, IOutputEnvView outEnvView )  throws Exception{
 		super(actorId, myCtx, outEnvView);
 	}
 /*

@@ -1,11 +1,11 @@
 %==============================================
-% WorldTheory.pl for actor coap_server
+% WorldTheory.pl for actor client_stopper
 %==============================================
 /*
 For a QActor as a singleton statically degined in the model
 */
-myname(qatucoap_server).	%%old version (deprecated)
-actorobj(qatucoap_server).	%% see registerActorInProlog18 in QActor
+myname(qatuclient_stopper).	%%old version (deprecated)
+actorobj(qatuclient_stopper).	%% see registerActorInProlog18 in QActor
 
 /*
 For a QActor instance of name=Name dynamically created
@@ -81,7 +81,7 @@ evalGuard( G ) :-
 
 output( M ):-stdout <- println( M ).
 %-------------------------------------------------
-%  TuProlo FEATURES of the QActor coap_server
+%  TuProlo FEATURES of the QActor client_stopper
 %-------------------------------------------------
 dialog( FileName ) :-  
 	java_object('javax.swing.JFileChooser', [], Dialog),
@@ -89,7 +89,7 @@ dialog( FileName ) :-
 	Dialog <- getSelectedFile returns File,
 	File <- getName returns FileName. 		 
 
-%% :- stdout <- println(  "hello from world theory of coap_server" ). 
+%% :- stdout <- println(  "hello from world theory of client_stopper" ). 
 
 %-------------------------------------------------
 %  UTILITIES for TuProlog computations
@@ -140,9 +140,8 @@ inc(I,K,N):-
 actorPrintln( X ):- actorobj(A), text_term(XS,X), A  <- println( XS ).
 
 %-------------------------------------------------
-%  User static rules about coap_server
+%  User static rules about client_stopper
 %------------------------------------------------- 
-point( X,Y):-distance( X),angle( Y).
 /*
 ------------------------------------------------------------------------
 testex :- actorPrintln( testex ),

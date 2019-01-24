@@ -17,10 +17,10 @@ digraph finite_state_machine {
 	clientStop [ color = blue ][ fontcolor = blue ][ penwidth = 3 ]
 	
 	getInitialValue -> handleToutBuiltIn [ label = "timeout(360000)" ][ color = green ][ fontcolor = green ]
-	sendingMessage -> receiveValue [ label = "value" ][ color = black ][ fontcolor = black ]
-	getInitialValue -> receiveInitialValue [ label = "value" ][ color = black ][ fontcolor = black ]
 	sendingMessage -> handleToutBuiltIn [ label = "timeout(360000)" ][ color = green ][ fontcolor = green ]
 	receiveValue -> clientStop [ label = "switch" ][ color = black ][ fontcolor = black ]
 	init -> getInitialValue [ label = "switch" ][ color = black ][ fontcolor = black ]
+	sendingMessage -> receiveValue [ label = "sendValue" ][ color = black ][ fontcolor = black ]
+	getInitialValue -> receiveInitialValue [ label = "sendValue" ][ color = black ][ fontcolor = black ]
 	receiveInitialValue -> sendingMessage [ label = "switch" ][ color = black ][ fontcolor = black ]
 }

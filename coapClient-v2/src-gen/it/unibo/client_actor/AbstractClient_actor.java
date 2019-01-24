@@ -57,9 +57,6 @@ public abstract class AbstractClient_actor extends QActor {
 	    	stateTab.put("handleToutBuiltIn",handleToutBuiltIn);
 	    	stateTab.put("init",init);
 	    	stateTab.put("running",running);
-	    	stateTab.put("getValue",getValue);
-	    	stateTab.put("putValue",putValue);
-	    	stateTab.put("readValue",readValue);
 	    	stateTab.put("stopping",stopping);
 	    }
 	    StateFun handleToutBuiltIn = () -> {	
@@ -78,9 +75,8 @@ public abstract class AbstractClient_actor extends QActor {
 	    try{	
 	     PlanRepeat pr = PlanRepeat.setUp("init",-1);
 	    	String myselfName = "init";  
-	    	temporaryStr = "\"radarCoapClient start.\"";
+	    	temporaryStr = "\"radarCoapClient: start.\"";
 	    	println( temporaryStr );  
-	    	it.unibo.radar.coap.client.coapRadarClientSimple.initClient( myself  );
 	    	it.unibo.radar.gui.radarGUIController.startGUI( myself  );
 	    	//switchTo running
 	        switchToPlanAsNextState(pr, myselfName, "client_actor_"+myselfName, 
@@ -98,8 +94,8 @@ public abstract class AbstractClient_actor extends QActor {
 	    	String myselfName = "running";  
 	    	//bbb
 	     msgTransition( pr,myselfName,"client_actor_"+myselfName,false,
-	          new StateFun[]{stateTab.get("getValue"), stateTab.get("putValue"), stateTab.get("stopping") }, 
-	          new String[]{"true","E","get", "true","E","put", "true","M","stopMessage" },
+	          new StateFun[]{stateTab.get("stopping") }, 
+	          new String[]{"true","E","stopMessage" },
 	          3600000, "handleToutBuiltIn" );//msgTransition
 	    }catch(Exception e_running){  
 	    	 println( getName() + " plan=running WARNING:" + e_running.getMessage() );
@@ -107,93 +103,11 @@ public abstract class AbstractClient_actor extends QActor {
 	    }
 	    };//running
 	    
-	    StateFun getValue = () -> {	
-	    try{	
-	     PlanRepeat pr = PlanRepeat.setUp("getValue",-1);
-	    	String myselfName = "getValue";  
-	    	temporaryStr = "\"get\"";
-	    	println( temporaryStr );  
-	    	it.unibo.radar.coap.client.coapRadarClientSimple.getResourceValue( myself  );
-	    	//bbb
-	     msgTransition( pr,myselfName,"client_actor_"+myselfName,true,
-	          new StateFun[]{stateTab.get("readValue") }, 
-	          new String[]{"true","M","value" },
-	          2000, "handleToutBuiltIn" );//msgTransition
-	    }catch(Exception e_getValue){  
-	    	 println( getName() + " plan=getValue WARNING:" + e_getValue.getMessage() );
-	    	 QActorContext.terminateQActorSystem(this); 
-	    }
-	    };//getValue
-	    
-	    StateFun putValue = () -> {	
-	    try{	
-	     PlanRepeat pr = PlanRepeat.setUp("putValue",-1);
-	    	String myselfName = "putValue";  
-	    	temporaryStr = "\"put\"";
-	    	println( temporaryStr );  
-	    	//onEvent 
-	    	setCurrentMsgFromStore(); 
-	    	curT = Term.createTerm("put(Distance,Angle)");
-	    	if( currentEvent != null && currentEvent.getEventId().equals("put") && 
-	    		pengine.unify(curT, Term.createTerm("put(Distance,Angle)")) && 
-	    		pengine.unify(curT, Term.createTerm( currentEvent.getMsg() ) )){ 
-	    			{/* JavaLikeMove */ 
-	    			String arg1 = "Distance" ;
-	    			arg1 =  updateVars( Term.createTerm("put(Distance,Angle)"), Term.createTerm("put(Distance,Angle)"), 
-	    				                Term.createTerm(currentEvent.getMsg()),  arg1 );	                
-	    			//end arg1
-	    			String arg2 = "Angle" ;
-	    			arg2 =  updateVars( Term.createTerm("put(Distance,Angle)"), Term.createTerm("put(Distance,Angle)"), 
-	    				                Term.createTerm(currentEvent.getMsg()),  arg2 );	                
-	    			//end arg2
-	    			it.unibo.radar.coap.client.coapRadarClientSimple.putResourceValue(this,arg1,arg2 );
-	    			}
-	    	}
-	    	repeatPlanNoTransition(pr,myselfName,"client_actor_"+myselfName,false,true);
-	    }catch(Exception e_putValue){  
-	    	 println( getName() + " plan=putValue WARNING:" + e_putValue.getMessage() );
-	    	 QActorContext.terminateQActorSystem(this); 
-	    }
-	    };//putValue
-	    
-	    StateFun readValue = () -> {	
-	    try{	
-	     PlanRepeat pr = PlanRepeat.setUp("readValue",-1);
-	    	String myselfName = "readValue";  
-	    	temporaryStr = "\"readValue\"";
-	    	println( temporaryStr );  
-	    	//onMsg 
-	    	setCurrentMsgFromStore(); 
-	    	curT = Term.createTerm("value(Distance,Angle)");
-	    	if( currentMessage != null && currentMessage.msgId().equals("value") && 
-	    		pengine.unify(curT, Term.createTerm("value(Distance,Angle)")) && 
-	    		pengine.unify(curT, Term.createTerm( currentMessage.msgContent() ) )){ 
-	    		{/* JavaLikeMove */ 
-	    		String arg1 = "Distance" ;
-	    		arg1 =  updateVars( Term.createTerm("value(Distance,Angle)"), Term.createTerm("value(Distance,Angle)"), 
-	    			                Term.createTerm(currentMessage.msgContent()),  arg1 );	                
-	    		//end arg1
-	    		String arg2 = "Angle" ;
-	    		arg2 =  updateVars( Term.createTerm("value(Distance,Angle)"), Term.createTerm("value(Distance,Angle)"), 
-	    			                Term.createTerm(currentMessage.msgContent()),  arg2 );	                
-	    		//end arg2
-	    		it.unibo.radar.gui.radarGUIController.setValue(this,arg1,arg2 );
-	    		}
-	    	}
-	    	//switchTo running
-	        switchToPlanAsNextState(pr, myselfName, "client_actor_"+myselfName, 
-	              "running",false, false, null); 
-	    }catch(Exception e_readValue){  
-	    	 println( getName() + " plan=readValue WARNING:" + e_readValue.getMessage() );
-	    	 QActorContext.terminateQActorSystem(this); 
-	    }
-	    };//readValue
-	    
 	    StateFun stopping = () -> {	
 	    try{	
 	     PlanRepeat pr = PlanRepeat.setUp("stopping",-1);
 	    	String myselfName = "stopping";  
-	    	temporaryStr = "\"radarCoapClient stop.\"";
+	    	temporaryStr = "\"radarCoapClient: stop.\"";
 	    	println( temporaryStr );  
 	    	repeatPlanNoTransition(pr,myselfName,"client_actor_"+myselfName,false,false);
 	    }catch(Exception e_stopping){  

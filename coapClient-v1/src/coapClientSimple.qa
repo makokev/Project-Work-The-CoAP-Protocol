@@ -1,7 +1,5 @@
 System coapSimpleClient
 
-Event get : get
-Event put : put(Distance, Angle)
 Event value_event : value(Distance, Angle)
 
 Dispatch value : value(Distance, Angle)
@@ -16,21 +14,21 @@ EventHandler handlevalue for value_event {
 QActor client_simple_actor context ctxCoapSimpleClient{
 		Plan init normal
 	[ 
-		println("radarCoapClientSimple start.");
+		println("coapClientSimple: start.");
 		javaRun it.unibo.radar.coap.client.coapRadarClientSimple.initClient()
 	]
 	switchTo putValue
 	
 	Plan putValue
 	[
-		println("PUT");
-		javaRun it.unibo.radar.coap.client.coapRadarClientSimple.putResourceValue("50", "40")
+		println("coapClientSimple: Emitted PUT: value(45,90).");
+		javaRun it.unibo.radar.coap.client.coapRadarClientSimple.putResourceValue("45", "90")
 	]
 	switchTo getValue
 	
 	Plan getValue resumeLastPlan
 	[
-		println("GET");
+		println("coapClientSimple: Emitted GET.");
 		javaRun it.unibo.radar.coap.client.coapRadarClientSimple.getResourceValue()
 	]
 	transition stopAfter 2000
@@ -38,14 +36,17 @@ QActor client_simple_actor context ctxCoapSimpleClient{
 	
 	Plan printValue
 	[
-		println("PRINT VALUE:");
+		println("coapClientSimple: Response GET received.");
+		println("coapClientSimple: Distance = ");
 		onMsg value : value(Distance, Angle) -> println(Distance);
+		println("coapClientSimple: Angle = ");
 		onMsg value : value(Distance, Angle) -> println(Angle)	
-	]	
+	]
+	switchTo stopping	
 	
 	Plan stopping
 	[
-		println("radarCoapClient stop.")
+		println("coapClientSimple: stop.")
 	]
 	
 }

@@ -8,13 +8,14 @@ import org.eclipse.californium.core.CoapResponse;
 import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 
+import it.unibo.qactors.akka.QActor;
 import it.unibo.radar.coap.RadarPoint;
 
 public class coapRadarClient {
 	
 	private static final String URI_STRING = "coap://localhost:5683/RadarPoint";
 	private static coapRadarClient instance;
-	private CoapClient client;
+	private static CoapClient client;
 	
 	public static coapRadarClient getInstance(){
 		if(instance == null)
@@ -33,7 +34,7 @@ public class coapRadarClient {
 		client = new CoapClient(uri);
 	}
 	
-	public RadarPoint getResourceValue(){
+	public static RadarPoint getResourceValue(QActor actor){
 		CoapResponse response = client.get();
 		if (response != null) {
 			RadarPoint point = RadarPoint.convertFromString(response.getResponseText());
@@ -44,7 +45,11 @@ public class coapRadarClient {
 		}	
 	}
 	
-	public boolean putResourceValue(RadarPoint point){
+	public static boolean putResourceValue(QActor actor, String distance, String angle){
+		return putResourceValue(new RadarPoint(Integer.parseInt(distance), Integer.parseInt(angle)));
+	}
+	
+	private static boolean putResourceValue(RadarPoint point){
 		if(point != null){
 			CoapResponse response = client.put(point.compactToString(), MediaTypeRegistry.TEXT_PLAIN);
 			if(response != null) {

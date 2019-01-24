@@ -153,32 +153,27 @@ class ResponseThread extends Thread
 	public void start(){
 		// message format:		RESPONSE-SUCCESS_responseText
 		// 									or
-		// message format:		RESPONSE-FAILURE_failureMessage
+		// message format:		RESPONSE-FAILURE_failureCode
 			
 		CoapMediatorResponse response = null;
 		CoapRequestID id = new CoapRequestID(requestId, uri);
 		System.out.println("ResponseThread started.");
 		try{
-			do {
-				response = CoapMediator.GetResponse(id);		
-				if(response == null) {
-					System.out.print(".");
-					Thread.sleep(500);
-				}
-			} while(response == null);
-			System.out.println();
-		
+			response = CoapMediator.GetResponse(id);		
 			String message = "RESPONSE"+HEADER_SEPARATOR;
-			if(response.isResponseValid())
-				message += "SUCCESS"+ARGUMENT_SEPARATOR+response.getResponse().getResponseText();
-			else
-				message += "FAILURE"+ARGUMENT_SEPARATOR+"Response failed!";
+			
+			if(response.isValid() && response.isSuccess())
+					message += "SUCCESS"+ARGUMENT_SEPARATOR+response.getResponse().getResponseText();
+			 else
+				message += "FAILURE"+ARGUMENT_SEPARATOR+response.getResponseCode().toString();
 			
 			out.writeUTF(message);
 			System.out.println("Message --> "+message);
+			System.out.println("ResponseThread stopped.");
 			clientSocket.close();
 		} catch(Exception e){
 			System.out.println("ResponseThread: out socket error.");
+			e.printStackTrace();
 		}
 	}
 }

@@ -9,14 +9,14 @@ public class CoapMediator {
 	
 	private static CoapMediator instance = null;
 	private static HashMap<CoapRequestID, CoapRequest> map;
-	private static Counter counter;
+	private static SynchronizedCounter counter;
 
 	// used by clients to get an instance of the mediator
 	synchronized public static CoapMediator GetInstance(){
 		if(instance == null){
 			instance = new CoapMediator();
 			map = new HashMap<>();
-			counter = new Counter(); //count = 0;
+			counter = new SynchronizedCounter(); //count = 0;
 		}
 		return instance;
 	}

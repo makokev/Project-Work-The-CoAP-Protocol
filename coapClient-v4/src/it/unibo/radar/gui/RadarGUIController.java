@@ -152,6 +152,7 @@ public class RadarGUIController extends JFrame {
 		}
 		txtResponseId.setText("");
 	}
+
 }
 
 

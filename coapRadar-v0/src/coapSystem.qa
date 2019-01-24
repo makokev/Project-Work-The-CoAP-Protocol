@@ -6,10 +6,8 @@ Dispatch getValue : getValue				// from client to server
 Dispatch putValue : value(Distance, Angle)	// from client to server
 Dispatch sendValue : value ( Discance, Angle )	// from server to client
 
-
 Context ctxSystemV0 ip [ host="localhost" port=8000 ] 
 Context ctxRadarBase   ip [ host="localhost" port=8033 ] -standalone 
-
 
 QActor server context ctxSystemV0 {
 	Rules

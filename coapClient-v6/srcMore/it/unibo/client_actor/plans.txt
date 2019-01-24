@@ -1,0 +1,3 @@
+plan(1,init, sentence(true,move(print("radarCoapClient start.")),'','' ))
+plan(2,init, sentence(true,not here StateMoveNormal,'','' ))
+plan(1,stopping, sentence(true,move(print("radarCoapClient stop.")),'','' ))

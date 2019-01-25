@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResponse;
 
-import coap.mediator.CoapMediatorResponse.CoapMediatorResponseCode;
+import coap.mediator.CoapMediatorResponseCode;
 
 public class CoapMediator {
 	
@@ -41,7 +41,7 @@ public class CoapMediator {
 		if(!request.IsResponseReady())
 			return new CoapMediatorResponse(null, CoapMediatorResponseCode.RESPONSE_NOT_AVAILABLE_YET);
 		
-		requests.remove(coapID); // the response is readable only one time!
+		requests.remove(coapID.getNumericId()); // the response is readable only one time!
 		return new CoapMediatorResponse(request.GetResponse(), CoapMediatorResponseCode.RESPONSE_SUCCESS);
 	}
 	

@@ -23,15 +23,7 @@ public class CoapMediatorResponse {
 	
 	public boolean isAvailable() {
 		return this.responseCode == CoapMediatorResponseCode.RESPONSE_AVAILABLE;
-	}
-	
-	public enum CoapMediatorResponseCode {
-		RESPONSE_NOT_AVAILABLE_YET,
-		RESPONSE_AVAILABLE,
-		RESPONSE_ILLEGAL,
-		RESPONSE_ALREADY_READ
-	}
- 
+	} 
 }
 
 

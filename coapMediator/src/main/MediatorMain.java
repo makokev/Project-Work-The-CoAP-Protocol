@@ -11,7 +11,7 @@ public class MediatorMain {
 
 	public static final int LOCAL_PORT = 5633;
 	public static final String HEADER_SEPARATOR = "-";
-	public static final String ARGUMENT_SEPARATOR = "_";
+	public static final String ARGUMENT_SEPARATOR = "!";
 
 	public static void main(String[] args) throws IOException {
 		
@@ -151,7 +151,7 @@ class ResponseThread extends Thread
 	
 	@Override
 	public void start(){
-		// message format:		RESPONSE-SUCCESS_responseText
+		// message format:		RESPONSE-responseCode_responseText
 		// 									or
 		// message format:		RESPONSE-FAILURE_failureCode
 			
@@ -162,10 +162,12 @@ class ResponseThread extends Thread
 			response = CoapMediator.GetResponse(id);		
 			String message = "RESPONSE"+HEADER_SEPARATOR;
 			
+			message += response.getResponseCode() + ARGUMENT_SEPARATOR;
+			
 			if(response.isValid() && response.isSuccess())
-					message += "SUCCESS"+ARGUMENT_SEPARATOR+response.getResponse().getResponseText();
+					message += response.getResponse().getResponseText();
 			 else
-				message += "FAILURE"+ARGUMENT_SEPARATOR+response.getResponseCode().toString();
+				message += response.getResponseCode().getDescription();
 			
 			out.writeUTF(message);
 			System.out.println("Message --> "+message);

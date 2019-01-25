@@ -8,10 +8,6 @@ import java.awt.Label;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
 import java.util.HashMap;
 
 import javax.swing.JFrame;
@@ -19,19 +15,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.eclipse.californium.core.coap.MediaTypeRegistry;
-
 import coap.mediator.CoapRequestID;
+import coap.mediator.MediatorMessage;
+import coap.mediator.client.CoapMediatorClient;
 import it.unibo.radar.RadarPoint;
 
 public class RadarGUIController extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private static final String URI_STRING = "coap://localhost:5683/RadarPoint";
-	private static final String REMOTE_MEDIATOR_HOST = "localhost";
-	private static final int REMOTE_MEDIATOR_PORT = 5633;
-	private static final String HEADER_SEPARATOR = "-";
-	private static final String ARGUMENT_SEPARATOR = "_";
 	
 	private HashMap<Integer, CoapRequestID> requestIDs;
 	private TextField txtDistance, txtAngle, txtResponseId;
@@ -116,40 +108,15 @@ public class RadarGUIController extends JFrame {
 		// out format:			GET|uri
 		// in  format:			REQUEST_ID|id
 		txtArea.append("- GET\n");
-		try {
-			Socket clientSocket = new Socket(REMOTE_MEDIATOR_HOST, REMOTE_MEDIATOR_PORT);
-			clientSocket.setSoTimeout(60000); // 60 seconds
-			DataOutputStream outToMediator = new DataOutputStream(clientSocket.getOutputStream());
-			DataInputStream inFromMediator = new DataInputStream(clientSocket.getInputStream());
-			
-			String message = "GET"+HEADER_SEPARATOR+URI_STRING;
-			txtArea.append("Message out: '"+message+"'\n");
-			outToMediator.writeUTF(message);
-			message = inFromMediator.readUTF();
-			txtArea.append("Message in: '"+message+"'\n");
-			String type = message.split(HEADER_SEPARATOR)[0];
-			CoapRequestID requestId = null;
-			if(type.equals("REQUEST_ID"))
-			{
-				int id = Integer.parseInt(message.split(HEADER_SEPARATOR)[1]);
-				requestId = new CoapRequestID(id, URI_STRING);
-				requestIDs.put(requestId.getNumericId(), requestId);
-				txtArea.append("REQUEST_GET ID: " + requestId.getNumericId()+"\n");
-				clientSocket.close();
-			}else {
-				txtArea.append("REQUEST_GET: Response error.\n");
-				System.exit(-1);
-			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			txtArea.append("Socket error.\n");
-		}
+		CoapRequestID requestId = CoapMediatorClient.Get(URI_STRING);
+		if(null != requestId){
+			requestIDs.put(requestId.getNumericId(), requestId);
+			txtArea.append("REQUEST_GET ID: " + requestId.getNumericId()+"\n");		
+		}else
+			txtArea.append("REQUEST_GET: Response error.\n");
 	}
 	
 	private void onRequestPUT(){
-		// out format:			PUT|uri,payload,payloadFormat
-		// in  format:			REQUEST_ID|id
-		
 		txtArea.append("- PUT\n");
 		String distance = txtDistance.getText();
 		String angle = txtAngle.getText();
@@ -158,31 +125,12 @@ public class RadarGUIController extends JFrame {
 		else{
 			RadarPoint point = RadarPoint.convertFromString(distance+","+angle);
 			if(point != null){
-				try {
-					Socket clientSocket = new Socket(REMOTE_MEDIATOR_HOST, REMOTE_MEDIATOR_PORT);
-					clientSocket.setSoTimeout(60000); // 60 seconds
-					DataOutputStream outToMediator = new DataOutputStream(clientSocket.getOutputStream());
-					DataInputStream inFromMediator = new DataInputStream(clientSocket.getInputStream());
-					
-					String message = "PUT"+HEADER_SEPARATOR+URI_STRING+ARGUMENT_SEPARATOR+point.compactToString()+ARGUMENT_SEPARATOR+MediaTypeRegistry.TEXT_PLAIN;
-					txtArea.append("Message out: '"+message+"'\n");
-					outToMediator.writeUTF(message);
-					message = inFromMediator.readUTF();
-					txtArea.append("Message in: '"+message+"'\n");
-					String type = message.split(HEADER_SEPARATOR)[0];
-					if(type.equals("REQUEST_ID"))
-					{
-						int id = Integer.parseInt(message.split(HEADER_SEPARATOR)[1]);
-						CoapRequestID requestId = new CoapRequestID(id, URI_STRING);
-						requestIDs.put(requestId.getNumericId(), requestId);
-						txtArea.append("REQUEST_PUT ID: " + requestId.getNumericId() + "\n");
-					}else
-						txtArea.append("REQUEST_PUT: Response error.\n");	
-					clientSocket.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-					txtArea.append("Socket error.\n");
-				}
+				CoapRequestID requestId = CoapMediatorClient.Put(URI_STRING, point);
+				if(null != requestId){
+					requestIDs.put(requestId.getNumericId(), requestId);
+					txtArea.append("REQUEST_PUT ID: " + requestId.getNumericId()+"\n");					
+				} else
+					txtArea.append("REQUEST_PUT: Response error.\n");
 			}
 			else
 				txtArea.append("Invalid data inserted (distance: [0,80], angle: [0,360]).\n");
@@ -196,6 +144,7 @@ public class RadarGUIController extends JFrame {
 		// in  format:			RESPONSE|SUCCESS,responseText
 		// 							or
 		// in  format:			RESPONSE|FAILURE,failureMessage
+		
 		txtArea.append("- RESPONSE\n");
 		String responseID = txtResponseId.getText();
 		txtResponseId.setText("");
@@ -218,36 +167,10 @@ public class RadarGUIController extends JFrame {
 			return;
 		}
 		
-		try{
-			Socket clientSocket = new Socket(REMOTE_MEDIATOR_HOST, REMOTE_MEDIATOR_PORT);
-			clientSocket.setSoTimeout(60000); // 60 seconds
-			DataOutputStream outToMediator = new DataOutputStream(clientSocket.getOutputStream());
-			DataInputStream inFromMediator = new DataInputStream(clientSocket.getInputStream());
-			
-			String message = "RESPONSE"+HEADER_SEPARATOR+URI_STRING+ARGUMENT_SEPARATOR+id;
-			txtArea.append("Message out: '"+message+"'\n");
-			outToMediator.writeUTF(message);
-			message = inFromMediator.readUTF();
-			txtArea.append("Message in: '"+message+"'\n");
-			String type = message.split(HEADER_SEPARATOR)[0];
-			if(type.equals("RESPONSE"))
-			{
-				String result = message.split(HEADER_SEPARATOR)[1].split(ARGUMENT_SEPARATOR)[0];
-				String responseText = message.split(HEADER_SEPARATOR)[1].split(ARGUMENT_SEPARATOR)[1];
-				if(result.equals("SUCCESS")){
-					txtArea.append("RESPONSE_VALUE: " + responseText + "\n");
-					requestIDs.remove(id);
-				}
-				else
-					txtArea.append("RESPONSE_ERROR: " + responseText + "\n");
-			}else
-				txtArea.append("REQUEST_RESPONSE: Response error.\n");
-			clientSocket.close();
-		}catch(Exception e){
-			e.printStackTrace();
-			txtArea.append("Socket error.\n");
-		}
-		
+		CoapRequestID requestId = requestIDs.get(id);
+		requestIDs.remove(id);
+		MediatorMessage message = CoapMediatorClient.GetResponse(requestId);
+		txtArea.append(message.getMessage()+"\n");
 	}
 
 }

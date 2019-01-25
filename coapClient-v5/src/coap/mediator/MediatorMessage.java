@@ -10,20 +10,18 @@ public class MediatorMessage {
 	}
 	
 	public boolean isValid() {
-		return 	responseCode != CoapMediatorResponseCode.ILLEGAL_REQUEST &&
-				responseCode != CoapMediatorResponseCode.RESPONSE_FORMAT_ERROR;
+		return 	responseCode.isValid();
 	}
 	
 	public boolean isAvailable() {
-		return responseCode != CoapMediatorResponseCode.RESPONSE_NOT_AVAILABLE_YET;
+		return responseCode.isAvailable();
 	}
 	
 	public boolean isSuccess(){
-		return responseCode == CoapMediatorResponseCode.RESPONSE_SUCCESS;
+		return responseCode.isSuccess();
 	}
 	
 	public String getMessage(){
 		return message;
 	}
-	
 }

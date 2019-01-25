@@ -19,7 +19,6 @@ public class CoapMediatorClient {
 	private static final String HEADER_SEPARATOR = "-";
 	private static final String ARGUMENT_SEPARATOR = "!";
 	
-	
 	public static CoapRequestID Get(String resourceURI){
 		// out format:	GET|uri
 		// in  format:	REQUEST_ID|id
@@ -115,4 +114,5 @@ public class CoapMediatorClient {
 		CoapMediatorResponseCode code = CoapMediatorResponseCode.RESPONSE_FORMAT_ERROR;
 		return new MediatorMessage(code, "RESPONSE_ERROR: "+code.getDescription());
 	}
+
 }

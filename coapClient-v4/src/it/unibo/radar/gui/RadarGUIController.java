@@ -26,7 +26,7 @@ public class RadarGUIController extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static final String URI_STRING = "coap://localhost:5683/RadarPoint";
 	
-	private HashMap<Integer, CoapRequestID> requestIDs;
+	private HashMap<Integer, CoapRequestID> requests;
 	private TextField txtDistance, txtAngle, txtResponseId;
 	private JTextArea txtArea;
 	
@@ -36,7 +36,7 @@ public class RadarGUIController extends JFrame {
 	
 	public RadarGUIController(String title){
 		super(title);
-		requestIDs = new HashMap<>();
+		requests = new HashMap<>();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(500,400);
@@ -105,7 +105,7 @@ public class RadarGUIController extends JFrame {
 	private void onRequestGET(){
 		CoapMediator mediator = CoapMediator.GetInstance();
 		CoapRequestID id = mediator.Get(URI_STRING);
-		requestIDs.put(id.getNumericId(), id);
+		requests.put(id.getNumericId(), id);
 		txtArea.append("REQUEST_GET ID: " + id.getNumericId() + "\n");
 	}
 	
@@ -119,7 +119,7 @@ public class RadarGUIController extends JFrame {
 			if(point != null){
 				CoapMediator mediator = CoapMediator.GetInstance();
 				CoapRequestID id = mediator.Put(URI_STRING, point.compactToString(), MediaTypeRegistry.TEXT_PLAIN);
-				requestIDs.put(id.getNumericId(), id);
+				requests.put(id.getNumericId(), id);
 				txtArea.append("REQUEST_PUT ID: " + id.getNumericId() + "\n");
 			}
 			else
@@ -136,11 +136,11 @@ public class RadarGUIController extends JFrame {
 		else{
 			int id = Integer.parseInt(responseID);
 			CoapMediator mediator = CoapMediator.GetInstance();
-			if(requestIDs.containsKey(id)){
-				CoapMediatorResponse response = mediator.GetResponse(requestIDs.get(id));
+			if(requests.containsKey(id)){
+				CoapMediatorResponse response = mediator.GetResponse(requests.get(id));
 				if(response.isValid()){
 					if(response.isAvailable()){
-						requestIDs.remove(id);
+						requests.remove(id);
 						txtArea.append("RESPONSE_VALUE: " + response.getResponse().getResponseText() + "\n");
 					}
 					else

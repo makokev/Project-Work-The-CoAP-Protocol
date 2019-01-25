@@ -1,6 +1,7 @@
 package coap.mediator;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResponse;
 
@@ -8,11 +9,11 @@ import coap.mediator.CoapMediatorResponse.CoapMediatorResponseCode;
 
 public class CoapMediator {
 	
-	private static HashMap<Integer, CoapRequest> requests = new HashMap<>();
+	private static ConcurrentHashMap<Integer, CoapRequest> requests = new ConcurrentHashMap<>();
 	private static SynchronizedCounter counter = new SynchronizedCounter();
 	
 	// used by clients to send a GET-REQUEST
-	synchronized public static CoapRequestID Get(String uri){
+	public static CoapRequestID Get(String uri){
 		CoapRequestGet coapRequest = new CoapRequestGet(counter.GetCount(), uri);
 		counter.IncrementCount();
 		requests.put(coapRequest.GetRequestId().getNumericId(), coapRequest);
@@ -21,7 +22,7 @@ public class CoapMediator {
 	}
 	
 	// used by clients to send a PUT-REQUEST
-	synchronized public static CoapRequestID Put(String uri, String payload, int payloadFormat){
+	public static CoapRequestID Put(String uri, String payload, int payloadFormat){
 		CoapRequestPut coapRequest = new CoapRequestPut(counter.GetCount(), uri, payload, payloadFormat);
 		counter.IncrementCount();
 		requests.put(coapRequest.GetRequestId().getNumericId(), coapRequest);
@@ -30,7 +31,7 @@ public class CoapMediator {
 	}
 
 	// used by clients to send a RESPONSE-REQUEST to obtain the response if exists
-	synchronized static public CoapMediatorResponse GetResponse(CoapRequestID coapID){
+	static public CoapMediatorResponse GetResponse(CoapRequestID coapID){
 		 if(coapID.getNumericId() >= counter.GetCount() || coapID.getNumericId() < 0)
 			 return new CoapMediatorResponse(null, CoapMediatorResponseCode.ILLEGAL_REQUEST);
 		 if(!requests.containsKey(coapID.getNumericId()))
@@ -45,7 +46,7 @@ public class CoapMediator {
 	}
 	
 	// used by threads to update the map with the received coap response
-	synchronized protected static void RegisterResponse(CoapRequest coapRequest){
+	protected static void RegisterResponse(CoapRequest coapRequest){
 		requests.put(coapRequest.GetRequestId().getNumericId(), coapRequest); // update the value of coapRequest
 	}
 	

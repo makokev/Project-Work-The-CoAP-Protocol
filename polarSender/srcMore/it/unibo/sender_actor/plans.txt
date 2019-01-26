@@ -1,0 +1,6 @@
+plan(1,init, sentence(true,move(print("sender_actor starts.")),'','' ))
+plan(1,sendPolarEvent, sentence(true,raise( polar , p( 90,20) )'),'','' ))
+plan(2,sendPolarEvent, sentence(true,delay( 1500) ,'','' ))
+plan(3,sendPolarEvent, sentence(true,raise( polar , p( 40,120) )'),'','' ))
+plan(4,sendPolarEvent, sentence(true,delay( 1500) ,'','' ))
+plan(5,sendPolarEvent, sentence(true,raise( polar , p( 0,0) )'),'','' ))

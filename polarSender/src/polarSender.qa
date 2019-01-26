@@ -1,0 +1,28 @@
+System polarsender
+
+Event polar      : p( Distance, Angle  )  
+
+Context ctxPolarSender ip [ host="localhost" port=8009]
+Context ctxRadarBase   ip [ host="localhost" port=8033 ]  -standalone 
+
+QActor sender_actor context ctxPolarSender{
+	Plan init normal
+	[
+		println("sender_actor starts.")
+	]
+	switchTo sendPolarEvent
+	
+	Plan sendPolarEvent
+	[
+		emit polar : p(90,20);
+		
+		delay 1500;
+		emit polar : p(40,120);
+		
+		delay 1500;
+		emit polar : p(0,0)
+		
+	]
+}
+
+

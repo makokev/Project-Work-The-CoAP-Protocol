@@ -65,9 +65,11 @@ public class RadarGUIController extends JFrame {
 		Button btnGet = new Button("GET");
 		Button btnPut = new Button("PUT");
 		Button btnResponse = new Button("RESPONSE");
+		Button btnClear = new Button("CLEAR");
 		pnlButton.add(btnGet);
 		pnlButton.add(btnPut);
 		pnlButton.add(btnResponse);
+		pnlButton.add(btnClear);
 		
 		txtArea = new JTextArea(12,40);
 		txtArea.setEditable(false);
@@ -101,6 +103,12 @@ public class RadarGUIController extends JFrame {
 				onRequestRESPONSE();
 			}
 		});
+		btnClear.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				txtArea.setText("");
+			}
+		});	
 	
 	}
 	

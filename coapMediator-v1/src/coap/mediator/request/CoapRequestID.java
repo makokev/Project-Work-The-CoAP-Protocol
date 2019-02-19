@@ -1,4 +1,4 @@
-package coap.mediator;
+package coap.mediator.request;
 
 import java.net.URI;
 import java.net.URISyntaxException;

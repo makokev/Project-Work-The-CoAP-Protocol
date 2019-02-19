@@ -1,4 +1,4 @@
-package coap.mediator;
+package coap.mediator.request;
 import java.net.URI;
 
 import org.eclipse.californium.core.CoapResponse;
@@ -20,7 +20,7 @@ public abstract class CoapRequest {
 		response = null;
 	}
 	
-	protected void SetResponse(CoapResponse response){
+	public void SetResponse(CoapResponse response){
 		this.response = response;
 		responseReady = true;
 	}

@@ -1,9 +1,9 @@
-package coap.mediator;
+package coap.mediator.request;
 
 // The specific class for GET requests
 public class CoapRequestGet extends CoapRequest {
 
-	protected CoapRequestGet(int id, String uri) {
+	public CoapRequestGet(int id, String uri) {
 		super(id, uri);
 	}
 	

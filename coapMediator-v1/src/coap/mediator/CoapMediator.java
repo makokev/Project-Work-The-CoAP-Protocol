@@ -5,7 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResponse;
 
-import coap.mediator.CoapMediatorResponseCode;
+import coap.mediator.request.*;
+import coap.mediator.response.*;
 
 public class CoapMediator {
 	

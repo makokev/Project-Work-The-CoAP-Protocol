@@ -1,4 +1,4 @@
-package coap.mediator;
+package coap.mediator.response;
 
 import org.eclipse.californium.core.CoapResponse;
 

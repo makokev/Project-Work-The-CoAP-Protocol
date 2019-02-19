@@ -1,4 +1,4 @@
-package coap.mediator;
+package coap.mediator.response;
 
 public enum CoapMediatorResponseCode {
 	RESPONSE_NOT_AVAILABLE_YET("Response not available yet"),

@@ -32,5 +32,4 @@ public class PutMediatorThread extends MediatorThread{
 			System.out.println("GetThread: out socket error.");
 		}
 	}
-
 }

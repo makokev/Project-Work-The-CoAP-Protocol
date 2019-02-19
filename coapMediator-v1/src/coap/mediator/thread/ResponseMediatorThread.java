@@ -43,5 +43,4 @@ public class ResponseMediatorThread extends MediatorThread{
 			e.printStackTrace();
 		}
 	}
-	
 }

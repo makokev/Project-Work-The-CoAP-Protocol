@@ -26,8 +26,5 @@ public class GetMediatorThread extends MediatorThread{
 		} catch(Exception e){
 			System.out.println("GetThread: out socket error.");
 		}
-		
-
 	}
-
 }

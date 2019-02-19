@@ -10,7 +10,6 @@ import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import coap.mediator.CoapMediatorResponseCode;
 import coap.mediator.CoapRequestID;
 import coap.mediator.MediatorMessage;
-import it.unibo.radar.RadarPoint;
 
 public class CoapMediatorClient {
 	
@@ -50,7 +49,7 @@ public class CoapMediatorClient {
 		return null;
 	}
 	
-	public static CoapRequestID Put(String resourceURI, RadarPoint point){
+	public static CoapRequestID Put(String resourceURI, String payload){
 		// out format:	PUT|uri,payload,payloadFormat
 		// in  format:	REQUEST_ID|id
 				
@@ -60,7 +59,7 @@ public class CoapMediatorClient {
 			DataOutputStream outToMediator = new DataOutputStream(clientSocket.getOutputStream());
 			DataInputStream inFromMediator = new DataInputStream(clientSocket.getInputStream());
 			
-			String message = "PUT"+HEADER_SEPARATOR+resourceURI+ARGUMENT_SEPARATOR+point.compactToString()+ARGUMENT_SEPARATOR+MediaTypeRegistry.TEXT_PLAIN;
+			String message = "PUT"+HEADER_SEPARATOR+resourceURI+ARGUMENT_SEPARATOR+payload+ARGUMENT_SEPARATOR+MediaTypeRegistry.TEXT_PLAIN;
 			System.out.println("Message out: '"+message+"'\n");
 			outToMediator.writeUTF(message);
 			message = inFromMediator.readUTF();

@@ -133,7 +133,7 @@ public class RadarGUIController extends JFrame {
 		else{
 			RadarPoint point = RadarPoint.convertFromString(distance+","+angle);
 			if(point != null){
-				CoapRequestID requestId = CoapMediatorClient.Put(URI_STRING, point);
+				CoapRequestID requestId = CoapMediatorClient.Put(URI_STRING, point.compactToString());
 				if(null != requestId){
 					requestIDs.put(requestId.getNumericId(), requestId);
 					txtArea.append("REQUEST_PUT ID: " + requestId.getNumericId()+"\n");					

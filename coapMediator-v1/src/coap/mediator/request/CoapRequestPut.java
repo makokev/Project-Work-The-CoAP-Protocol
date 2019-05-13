@@ -1,5 +1,6 @@
 package coap.mediator.request;
 
+import org.eclipse.californium.core.coap.CoAP.Code;
 
 //The specific class for PUT requests
 public class CoapRequestPut extends CoapRequest {
@@ -8,7 +9,7 @@ public class CoapRequestPut extends CoapRequest {
 	private int payloadFormat;	// data format (usually is: MediaTypeRegistry.TEXT_PLAIN)
 	
 	public CoapRequestPut(int id, String uri, String payload, int payloadFormat) {
-		super(id, uri);
+		super(Code.PUT, id, uri);
 		this.payload = payload;
 		this.payloadFormat = payloadFormat;
 	}

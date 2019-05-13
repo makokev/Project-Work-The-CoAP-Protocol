@@ -14,6 +14,7 @@ public static QActorContext initTheContext() throws Exception{
 		"./srcMore/it/unibo/ctxCoapServer/sysRules.pl", outEnvView,webDir,false);
 }
 public static void main(String[] args) throws Exception{
+	@SuppressWarnings("unused")
 	QActorContext ctx = initTheContext();
 } 	
 }

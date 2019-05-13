@@ -4,9 +4,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResponse;
+import org.eclipse.californium.core.coap.MediaTypeRegistry;
+
+import com.google.gson.Gson;
 
 import coap.mediator.request.*;
 import coap.mediator.response.*;
+import coap.server.response.CoapServerResponse;
 
 public class CoapMediator {
 	
@@ -34,16 +38,19 @@ public class CoapMediator {
 	// used by clients to send a RESPONSE-REQUEST to obtain the response if exists
 	static public CoapMediatorResponse GetResponse(CoapRequestID coapID){
 		 if(coapID.getNumericId() >= counter.GetCount() || coapID.getNumericId() < 0)
-			 return new CoapMediatorResponse(null, CoapMediatorResponseCode.ILLEGAL_REQUEST);
+			 return new CoapMediatorResponse(coapID, CoapMediatorResponseCode.ILLEGAL_REQUEST, CoapMediatorResponseCode.ILLEGAL_REQUEST.getDescription(), MediaTypeRegistry.TEXT_PLAIN);
 		 if(!requests.containsKey(coapID.getNumericId()))
-			 return new CoapMediatorResponse(null, CoapMediatorResponseCode.RESPONSE_ALREADY_READ);
+			 return new CoapMediatorResponse(coapID, CoapMediatorResponseCode.RESPONSE_ALREADY_READ, CoapMediatorResponseCode.RESPONSE_ALREADY_READ.getDescription(), MediaTypeRegistry.TEXT_PLAIN);
 		 
 		CoapRequest request = requests.get(coapID.getNumericId());
 		if(!request.IsResponseReady())
-			return new CoapMediatorResponse(null, CoapMediatorResponseCode.RESPONSE_NOT_AVAILABLE_YET);
+			return new CoapMediatorResponse(coapID, CoapMediatorResponseCode.RESPONSE_NOT_AVAILABLE_YET, CoapMediatorResponseCode.RESPONSE_NOT_AVAILABLE_YET.getDescription(), MediaTypeRegistry.TEXT_PLAIN);
 		
 		requests.remove(coapID.getNumericId()); // the response is readable only one time!
-		return new CoapMediatorResponse(request.GetResponse(), CoapMediatorResponseCode.RESPONSE_SUCCESS);
+		System.out.println("RESPONSE TEXT: "+request.GetResponse().getResponseText());
+		
+		CoapServerResponse serverResponse = (new Gson()).fromJson(request.GetResponse().getResponseText(), CoapServerResponse.class);
+		return new CoapMediatorResponse(coapID, CoapMediatorResponseCode.RESPONSE_SUCCESS, serverResponse.getBody(), serverResponse.getBodyType());
 	}
 	
 	// used by threads to update the map with the received coap response
@@ -80,6 +87,8 @@ public class CoapMediator {
 			CoapClient client = new CoapClient(coapRequest.GetUri());
 			System.out.println("GET URI: "+coapRequest.GetUri());
 			CoapResponse response = client.get();
+			System.out.println("Message from server <-- " + response.getResponseText());
+			System.out.println("CoapRequestID: " + coapRequest.GetRequestId());
 			coapRequest.SetResponse(response);
 			CoapMediator.RegisterResponse(coapRequest);
 		}		
@@ -98,6 +107,8 @@ public class CoapMediator {
 			CoapRequestPut putRequest = (CoapRequestPut) coapRequest;
 			System.out.println("PUT URI: "+coapRequest.GetUri() + " PAYLOAD: " + putRequest.getPayload());
 			CoapResponse response = client.put(putRequest.getPayload(), putRequest.getPayloadFormat());
+			System.out.println("Message from server <-- " + response.getResponseText());
+			System.out.println("CoapRequestID: " + coapRequest.GetRequestId());
 			coapRequest.SetResponse(response);
 			CoapMediator.RegisterResponse(coapRequest);
 		}	

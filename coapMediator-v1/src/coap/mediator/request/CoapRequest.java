@@ -2,20 +2,21 @@ package coap.mediator.request;
 import java.net.URI;
 
 import org.eclipse.californium.core.CoapResponse;
+import org.eclipse.californium.core.coap.CoAP.Code;
 
 // The generic class that represents a COAP request
 public abstract class CoapRequest {
 	
 	private CoapRequestID id;
-	private CoapResponse response;
+	private transient CoapResponse response;
 
 	// ResponseReady = false 						-> response not available yet (some errors occurred)
 	// ResponseReady = true and response  = null 	-> no response available
 	// ResponseReady = true and response != null 	-> response available
 	private boolean responseReady;
 	
-	protected CoapRequest(int id, String uri){
-		this.id = new CoapRequestID(id, uri);
+	protected CoapRequest(Code requestType, int id, String uri){
+		this.id = new CoapRequestID(requestType, id, uri);
 		responseReady = false;
 		response = null;
 	}

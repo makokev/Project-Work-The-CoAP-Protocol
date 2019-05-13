@@ -15,9 +15,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import coap.mediator.CoapRequestID;
-import coap.mediator.MediatorMessage;
+import org.eclipse.californium.core.coap.CoAP.Code;
+
+import com.google.gson.Gson;
+
 import coap.mediator.client.CoapMediatorClient;
+import coap.mediator.request.CoapRequestID;
+import coap.mediator.response.CoapMediatorResponse;
+import coap.mediator.response.CoapMediatorResponseCode;
 import it.unibo.radar.RadarPoint;
 
 public class RadarGUIController extends JFrame {
@@ -133,7 +138,7 @@ public class RadarGUIController extends JFrame {
 		else{
 			RadarPoint point = RadarPoint.convertFromString(distance+","+angle);
 			if(point != null){
-				CoapRequestID requestId = CoapMediatorClient.Put(URI_STRING, point.compactToString());
+				CoapRequestID requestId = CoapMediatorClient.Put(URI_STRING, (new Gson()).toJson(point));
 				if(null != requestId){
 					requestIDs.put(requestId.getNumericId(), requestId);
 					txtArea.append("REQUEST_PUT ID: " + requestId.getNumericId()+"\n");					
@@ -177,8 +182,21 @@ public class RadarGUIController extends JFrame {
 		
 		CoapRequestID requestId = requestIDs.get(id);
 		requestIDs.remove(id);
-		MediatorMessage message = CoapMediatorClient.GetResponse(requestId);
-		txtArea.append(message.getMessage()+"\n");
+		CoapMediatorResponse response = CoapMediatorClient.GetResponse(requestId);
+		if(response.getResponseCode() == CoapMediatorResponseCode.RESPONSE_SUCCESS)
+		{
+			System.out.println("Response: "+responseID.toString());
+			// crash here
+			if(response.getRequestId().getRequestType() == Code.GET){
+				RadarPoint point = (new Gson()).fromJson(response.getResponseBody(), RadarPoint.class);
+				txtArea.append(point.toString()+"\n");
+			} else{
+				txtArea.append(response.getResponseBody());
+			}
+		} else{
+			txtArea.append("RESPONSE_FAILED: "+response.getResponseBody()+"\n");
+		}
+
 	}
 
 }

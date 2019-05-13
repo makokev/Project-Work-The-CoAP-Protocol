@@ -3,6 +3,10 @@ package coap.mediator.thread;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.eclipse.californium.core.coap.CoAP.Code;
+
+import com.google.gson.Gson;
+
 import coap.mediator.CoapMediator;
 import coap.mediator.request.CoapRequestID;
 import coap.mediator.response.CoapMediatorResponse;
@@ -10,9 +14,11 @@ import coap.mediator.response.CoapMediatorResponse;
 public class ResponseMediatorThread extends MediatorThread{
 
 	private int requestId;
+	private Code requestType;
 	
-	public ResponseMediatorThread(Socket clientSocket, int requestId, String uri) throws IOException {
+	public ResponseMediatorThread(Socket clientSocket, Code requestType, int requestId, String uri) throws IOException {
 		super(clientSocket, uri);
+		this.requestType = requestType;
 		this.requestId = requestId;
 	}
 
@@ -21,21 +27,14 @@ public class ResponseMediatorThread extends MediatorThread{
 		// out message format:	"RESPONSE" HEADER_SEPARATOR responseCode ARGUMENT_SEPARATOR responseText/failureMessage
 			
 		CoapMediatorResponse response = null;
-		CoapRequestID id = new CoapRequestID(requestId, uri);
+		CoapRequestID id = new CoapRequestID(requestType, requestId, uri);
 		System.out.println("ResponseThread started.");
 		try{
-			response = CoapMediator.GetResponse(id);		
-			String message = "RESPONSE"+HEADER_SEPARATOR;
-			
-			message += response.getResponseCode() + ARGUMENT_SEPARATOR;
-			
-			if(response.isValid() && response.isSuccess())
-					message += response.getResponse().getResponseText();
-			 else
-				message += response.getResponseCode().getDescription();
-			
+			response = CoapMediator.GetResponse(id);	
+			String message = (new Gson()).toJson(response);
 			out.writeUTF(message);
-			System.out.println("Message --> "+message);
+			System.out.println("Message to client --> "+message);
+			System.out.println("RESP CODE: " + response.getRequestId().getRequestType());
 			System.out.println("ResponseThread stopped.");
 			clientSocket.close();
 		} catch(Exception e){

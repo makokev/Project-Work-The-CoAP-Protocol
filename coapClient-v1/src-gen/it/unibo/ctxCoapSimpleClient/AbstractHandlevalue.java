@@ -5,7 +5,6 @@ import it.unibo.contactEvent.interfaces.IEventItem;
 import it.unibo.qactors.platform.EventHandlerComponent;
 import it.unibo.is.interfaces.IOutputEnvView;
 import it.unibo.qactors.QActorContext;
-import it.unibo.qactors.QActorUtils;
 
 public abstract class AbstractHandlevalue extends EventHandlerComponent { 
 protected IEventItem event;

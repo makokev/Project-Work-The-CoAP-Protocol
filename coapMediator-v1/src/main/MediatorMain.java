@@ -3,13 +3,17 @@ package main;
 import java.io.*;
 import java.net.*;
 
+import org.eclipse.californium.core.coap.CoAP.Code;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import coap.mediator.request.ClientMediatorRequest;
 import coap.mediator.thread.*;
 
 public class MediatorMain {
 
 	public static final int LOCAL_MEDIATOR_PORT = 5633;
-	public static final String HEADER_SEPARATOR = MediatorThread.HEADER_SEPARATOR;
-	public static final String ARGUMENT_SEPARATOR = MediatorThread.ARGUMENT_SEPARATOR;
 
 	
 	public static void main(String[] args) throws IOException {
@@ -23,16 +27,17 @@ public class MediatorMain {
 			DataInputStream inFromClient = new DataInputStream((connectionSocket.getInputStream()));
 			String clientMessage = inFromClient.readUTF();
 			System.out.println("Message received: '"+clientMessage+"'");
-			String requestType = clientMessage.split(HEADER_SEPARATOR)[0];
-			System.out.println("Request type: '"+requestType+"'.");
-			String string, uri, payload;
-			int payloadFormat, requestId;
+			ClientMediatorRequest receivedRequest = (new Gson()).fromJson(clientMessage, ClientMediatorRequest.class);
+			System.out.println("Request type: '"+receivedRequest.getRequestType()+"'.");
+			JsonObject requestBody = (new Gson()).fromJson(receivedRequest.getRequestBody(), JsonObject.class);
+			String uri, payload;
+			int payloadFormat, requestId, requestType;
 			
-			switch(requestType){
+			switch(receivedRequest.getRequestType()){
 				case "GET" :
 					// message format:	GET-uri
-					string = clientMessage.split(HEADER_SEPARATOR)[1];
-					uri = string.split(ARGUMENT_SEPARATOR)[0];
+
+					uri = requestBody.get("uri").getAsString();
 					System.out.println("GetRequest received..");
 					GetMediatorThread threadGet = new GetMediatorThread(connectionSocket, uri);
 					threadGet.start();
@@ -40,10 +45,10 @@ public class MediatorMain {
 					
 				case "PUT" :
 					// message format:	PUT-uri_payload_payloadFormat
-					string = clientMessage.split(HEADER_SEPARATOR)[1];
-					uri = string.split(ARGUMENT_SEPARATOR)[0];
-					payload = string.split(ARGUMENT_SEPARATOR)[1];
-					payloadFormat = Integer.parseInt(string.split(ARGUMENT_SEPARATOR)[2]);
+					
+					uri = requestBody.get("uri").getAsString();
+					payload = requestBody.get("payload").getAsString();
+					payloadFormat = requestBody.get("payloadFormat").getAsInt();
 					System.out.println("PutRequest received..");
 					
 					PutMediatorThread threadPut = new PutMediatorThread(connectionSocket, uri, payload, payloadFormat);
@@ -51,13 +56,14 @@ public class MediatorMain {
 					break;
 					
 				case "RESPONSE" :
-					// message format:	RESPONSE-uri_requestId
-					string = clientMessage.split(HEADER_SEPARATOR)[1];
-					uri = string.split(ARGUMENT_SEPARATOR)[0];
-					requestId = Integer.parseInt(string.split(ARGUMENT_SEPARATOR)[1]);
+					// message format:	RESPONSE-reqeustType_uri_requestId
+					
+					requestType = requestBody.get("requestType").getAsInt();
+					uri = requestBody.get("uri").getAsString();
+					requestId = requestBody.get("requestId").getAsInt();
 					System.out.println("ResponseRequest received..");
 					
-					ResponseMediatorThread thread = new ResponseMediatorThread(connectionSocket, requestId, uri);
+					ResponseMediatorThread thread = new ResponseMediatorThread(connectionSocket, Code.valueOf(requestType), requestId, uri);
 					thread.start();
 					break;
 			}

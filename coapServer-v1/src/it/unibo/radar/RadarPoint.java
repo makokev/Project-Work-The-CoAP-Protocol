@@ -1,5 +1,12 @@
 package it.unibo.radar;
 
+/**
+ * @author kevin
+ *
+ * This class represents a radar point in our context.
+ * @param distance 
+ */
+
 public class RadarPoint{
 	
 	private final int distance;

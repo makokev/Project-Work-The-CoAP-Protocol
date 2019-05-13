@@ -1,35 +1,38 @@
 package coap.mediator.response;
 
-import org.eclipse.californium.core.CoapResponse;
+import coap.mediator.request.CoapRequestID;
 
-// Class that represents the response from the CoapMediator, it contains all the information about the COAP response
 public class CoapMediatorResponse {
-	private CoapResponse response;
+	private CoapRequestID requestId;
 	private CoapMediatorResponseCode responseCode;
+	private String responseBody;
+	private int responseBodyType;
 	
-	public CoapMediatorResponse(CoapResponse response, CoapMediatorResponseCode responseCode){
-		this.response = response;
+	public CoapMediatorResponse(CoapRequestID requestId, CoapMediatorResponseCode responseCode, String responseBody, int responseBodyType){
+		this.requestId = requestId;
 		this.responseCode = responseCode;
+		this.responseBody = responseBody;
+		this.responseBodyType = responseBodyType;
+	}
+	
+	public CoapRequestID getRequestId() {
+		return requestId;
 	}
 
-	public CoapResponse getResponse() {
-		return response;
-	}
-
-	public boolean isValid() {
-		return responseCode.isValid();
-	}
-	
-	public boolean isAvailable() {
-		return responseCode.isAvailable();
-	}
-	
-	public boolean isSuccess(){
-		return responseCode.isSuccess();
-	}
-	
-	public CoapMediatorResponseCode getResponseCode(){
+	public CoapMediatorResponseCode getResponseCode() {
 		return responseCode;
 	}
- 
+
+	public String getResponseBody() {
+		return responseBody;
+	}
+	
+	public int getResponseBodyType() {
+		return responseBodyType;
+	}
+
+	@Override
+	public String toString(){
+		return requestId + " - " + responseCode.name() + " - " + responseBodyType + " - " + responseBody;
+	}
 }

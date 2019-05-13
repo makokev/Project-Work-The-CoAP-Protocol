@@ -24,15 +24,17 @@ import java.net.SocketException;
 
 import org.eclipse.californium.core.CoapResource;
 import org.eclipse.californium.core.CoapServer;
+import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import org.eclipse.californium.core.network.CoapEndpoint;
 import org.eclipse.californium.core.network.EndpointManager;
 import org.eclipse.californium.core.network.config.NetworkConfig;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
+import com.google.gson.Gson;
+
+import coap.server.response.CoapServerResponse;
 import it.unibo.qactors.akka.QActor;
 import it.unibo.radar.RadarPoint;
-
-import org.eclipse.californium.core.coap.CoAP.ResponseCode;
 
 public class coapRadarServer extends CoapServer{	
 	private static QActor ACTOR;
@@ -90,22 +92,29 @@ public class coapRadarServer extends CoapServer{
     	@Override
         public void handleGET(CoapExchange exchange) {
     		System.out.println("GET request received.");
-            exchange.respond(radarPoint.compactToString());
+    		System.out.println("Message from client/mediator <-- " + exchange.getRequestText());
+    		CoapServerResponse response = new CoapServerResponse(MediaTypeRegistry.APPLICATION_JSON, (new Gson()).toJson(radarPoint));
+    		System.out.println("Message to client/mediator --> " + (new Gson()).toJson(response));
+    		exchange.respond((new Gson()).toJson(response));
         }
     	
     	@Override
-    	public void handlePUT(CoapExchange exange) {
+    	public void handlePUT(CoapExchange exchange) {
+    		CoapServerResponse response;
     		System.out.println("PUT request received.");
-    		String message = exange.getRequestText();
+    		System.out.println("Message from client/mediator <-- " + exchange.getRequestText());
+    		String message = exchange.getRequestText();
     		System.out.println("message: "+message);
     		try{
-    			radarPoint = RadarPoint.convertFromString(message);
+    			radarPoint = (new Gson()).fromJson(message, RadarPoint.class);
     			ACTOR.emit("polar", "p("+radarPoint.compactToString()+")"); // changing radar gui
-    			exange.respond(ResponseCode.CHANGED, "Resource changed.");
     			changed();
+    			response = new CoapServerResponse(MediaTypeRegistry.TEXT_PLAIN, "Resource changed");    			
     		} catch(IllegalArgumentException e){
-    			exange.respond(ResponseCode.UNSUPPORTED_CONTENT_FORMAT, "Request ignored.");
+    			response = new CoapServerResponse(MediaTypeRegistry.TEXT_PLAIN, "Request ignored becuase content format was unsupported");
     		}
+    		System.out.println("Message to client/mediator --> " + (new Gson()).toJson(response));
+    		exchange.respond((new Gson()).toJson(response));
     	}
     }
     

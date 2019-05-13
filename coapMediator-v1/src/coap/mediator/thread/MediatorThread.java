@@ -6,7 +6,7 @@ import java.net.Socket;
 
 public abstract class MediatorThread extends Thread {
 	// In Message format: request_type HEADER_SEPARATOR argument1 ARGUMENT_SEPARATOR argument2 ...
-	// Change those separators carfully! There are trouble if they are present in the message text. 
+	// Change those separators carfully! There are trouble if they are present in the message text.
 	public static final String HEADER_SEPARATOR = "-";
 	public static final String ARGUMENT_SEPARATOR = "!";
 
@@ -22,4 +22,5 @@ public abstract class MediatorThread extends Thread {
 	
 	@Override
 	public abstract void start();
+	
 }

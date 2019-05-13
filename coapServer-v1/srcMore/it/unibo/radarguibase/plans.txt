@@ -1,0 +1,8 @@
+plan(1,init, sentence(true,move(print("RADAR init the GUI ... ")),'','' ))
+plan(2,init, sentence(true,not here StateMoveNormal,'','' ))
+plan(3,init, sentence(true,raise( radarReady , radargui( ready) )'),'','' ))
+plan(1,handleSonarInfo, sentence(true,printCurrentMessage(''),'','' ))
+plan(2,handleSonarInfo, sentence(true,printCurrentEvent(false),'','' ))
+plan(3,handleSonarInfo, sentence(true,msgswitch(polarMsg, p( D,A) , not here StateMoveNormal),'','' ))
+plan(4,handleSonarInfo, sentence(true,eventswitch(polar, »p( D,A), not here StateMoveNormal ),'','' ))
+plan(5,handleSonarInfo, sentence(true,move(resumeplan),'','' ))

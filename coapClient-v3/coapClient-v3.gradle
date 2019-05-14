@@ -50,9 +50,7 @@ repositories {
 }
 dependencies {
 
-// CALIFORNIUM SUPPORT	
-
-	// https://mvnrepository.com/artifact/org.eclipse.californium/californium-core
+	/* CALIFORNIUM SUPPORT */	// https://mvnrepository.com/artifact/org.eclipse.californium/californium-core
 	compile group: 'org.eclipse.californium', name: 'californium-core', version: '1.0.1'
 
 }

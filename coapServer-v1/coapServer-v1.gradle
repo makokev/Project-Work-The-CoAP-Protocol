@@ -1,11 +1,11 @@
 /*
 ================================================================================
-build_ctxRadarBase.gradle
+build_ctxCoapServer.gradle
 GENERATED ONLY ONCE
 USAGE:	 
-	gradle -b build_ctxRadarBase.gradle eclipse		//to set the dependency on the library
-	gradle -b build_ctxRadarBase.gradle build
-	gradle -b build_ctxRadarBase.gradle cleanDistDir	//to clean the src directory
+	gradle -b build_ctxCoapServer.gradle eclipse		//to set the dependency on the library
+	gradle -b build_ctxCoapServer.gradle build
+	gradle -b build_ctxCoapServer.gradle cleanDistDir	//to clean the src directory
 ================================================================================
 */
 apply plugin: 'java'
@@ -21,7 +21,7 @@ PROPERTIES
 version = "1.0"
 sourceCompatibility = "1.8"
 ext{
-	mainClassName = "it.unibo.ctxRadarBase.MainCtxRadarBase"
+	mainClassName = "it.unibo.ctxCoapServer.MainCtxCoapServer"
 }
 /*
 --------------------------------------------------------------
@@ -57,16 +57,22 @@ BASIC SUPPORT (test, akka)
 	  compile group: 'com.typesafe.akka', name: 'akka-actor_2.11', version: '2.5.2'
 	 // https://mvnrepository.com/artifact/com.typesafe.akka/akka-remote_2.11
 	 compile group: 'com.typesafe.akka', name: 'akka-remote_2.11', version: '2.5.1'	 
+
+/*
+CALIFORNIUM SUPPORT
+*/
+     // https://mvnrepository.com/artifact/org.eclipse.californium/californium-core
+	 compile group: 'org.eclipse.californium', name: 'californium-core', version: '1.0.1'
      
 /*
 UNIBO SUPPORTS
 */		
-	  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboInterfaces.jar')
-	  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'unibonoawtsupports.jar')
-	  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'uniboEnvBaseAwt.jar')
-	  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: '2p301.jar')
-	  compile fileTree(dir: '../it.unibo.iss.libs/libs/unibo', include: 'qa18Akka.jar')
-	  compile fileTree(dir: '../it.unibo.iss.libs/libs/http',  include: 'nanoHTTPD.jar')
+	  compile fileTree(dir: '../it.unibo.libs2018/libs/unibo', include: 'uniboInterfaces.jar')
+	  compile fileTree(dir: '../it.unibo.libs2018/libs/unibo', include: 'unibonoawtsupports.jar')
+	  compile fileTree(dir: '../it.unibo.libs2018/libs/unibo', include: 'uniboEnvBaseAwt.jar')
+	  compile fileTree(dir: '../it.unibo.libs2018/libs/unibo', include: '2p301.jar')
+	  compile fileTree(dir: '../it.unibo.libs2018/libs/unibo', include: 'qa18Akka.jar')
+	  compile fileTree(dir: '../it.unibo.libs2018/libs/http',  include: 'nanoHTTPD.jar')
 /*
 JSON
 */

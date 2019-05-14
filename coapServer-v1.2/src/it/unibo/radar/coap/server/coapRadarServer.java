@@ -92,9 +92,9 @@ public class coapRadarServer extends CoapServer{
     	@Override
         public void handleGET(CoapExchange exchange) {
     		System.out.println("GET request received.");
-    		System.out.println("Message from client/mediator <-- " + exchange.getRequestText());
+    		System.out.println("Message from client <-- " + exchange.getRequestText());
     		CoapServerResponse response = new CoapServerResponse(MediaTypeRegistry.APPLICATION_JSON, (new Gson()).toJson(radarPoint));
-    		System.out.println("Message to client/mediator --> " + (new Gson()).toJson(response));
+    		System.out.println("Message to client --> " + (new Gson()).toJson(response));
     		exchange.respond((new Gson()).toJson(response));
         }
     	
@@ -102,7 +102,7 @@ public class coapRadarServer extends CoapServer{
     	public void handlePUT(CoapExchange exchange) {
     		CoapServerResponse response;
     		System.out.println("PUT request received.");
-    		System.out.println("Message from client/mediator <-- " + exchange.getRequestText());
+    		System.out.println("Message from client <-- " + exchange.getRequestText());
     		String message = exchange.getRequestText();
     		System.out.println("message: "+message);
     		try{
@@ -113,7 +113,7 @@ public class coapRadarServer extends CoapServer{
     		} catch(IllegalArgumentException e){
     			response = new CoapServerResponse(MediaTypeRegistry.TEXT_PLAIN, "Request ignored becuase content format was unsupported");
     		}
-    		System.out.println("Message to client/mediator --> " + (new Gson()).toJson(response));
+    		System.out.println("Message to client --> " + (new Gson()).toJson(response));
     		exchange.respond((new Gson()).toJson(response));
     	}
     }

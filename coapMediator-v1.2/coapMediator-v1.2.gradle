@@ -1,0 +1,56 @@
+/*
+================================================================================
+build_coapClient.gradle
+GENERATED ONLY ONCE
+USAGE:	 
+	gradle -b build_coapClient_v3.gradle eclipse		//to set the dependency on the library
+	gradle -b build_coapClient_v3.gradle build
+	gradle -b build_coapClient_v3.gradle cleanDistDir	//to clean the src directory
+================================================================================
+*/
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'java-library-distribution'
+apply plugin: 'jacoco'
+
+/*
+--------------------------------------------------------------
+PROPERTIES
+--------------------------------------------------------------
+*/
+version = "1.0"
+sourceCompatibility = "1.8"
+ext{
+	mainClassName = "it.unibo.ctxCoapClient.MainCtxCoapClient"
+}
+/*
+--------------------------------------------------------------
+DIRS
+--------------------------------------------------------------
+*/
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src' , 'src-gen'  ]
+		}
+	}
+	test {
+		 java {
+		   srcDirs = ['test']
+		 }
+	}
+}
+/*
+--------------------------------------------------------------
+DEPENDENCIES
+--------------------------------------------------------------
+*/
+repositories {
+      mavenCentral()
+}
+dependencies {
+
+	/* CALIFORNIUM SUPPORT */	// https://mvnrepository.com/artifact/org.eclipse.californium/californium-core
+	compile group: 'org.eclipse.californium', name: 'californium-core', version: '1.0.1'
+
+}

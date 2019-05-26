@@ -2,21 +2,14 @@
 package it.unibo.client;
 import it.unibo.qactors.PlanRepeat;
 import it.unibo.qactors.QActorContext;
-import it.unibo.qactors.StateExecMessage;
 import it.unibo.qactors.QActorUtils;
 import it.unibo.is.interfaces.IOutputEnvView;
 import it.unibo.qactors.action.AsynchActionResult;
 import it.unibo.qactors.action.IActorAction;
-import it.unibo.qactors.action.IActorAction.ActionExecMode;
 import it.unibo.qactors.action.IMsgQueue;
 import it.unibo.qactors.akka.QActor;
 import it.unibo.qactors.StateFun;
-import java.util.Stack;
-import java.util.Hashtable;
-import java.util.concurrent.Callable;
-import alice.tuprolog.Struct;
 import alice.tuprolog.Term;
-import it.unibo.qactors.action.ActorTimedAction;
 public abstract class AbstractClient extends QActor { 
 	protected AsynchActionResult aar = null;
 	protected boolean actionResult = true;

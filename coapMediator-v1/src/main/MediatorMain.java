@@ -34,7 +34,7 @@ public class MediatorMain {
 					string = clientMessage.split(HEADER_SEPARATOR)[1];
 					uri = string.split(ARGUMENT_SEPARATOR)[0];
 					System.out.println("GetRequest received..");
-					GetMediatorThread threadGet = new GetMediatorThread(connectionSocket, uri);
+					MediatorThreadGet threadGet = new MediatorThreadGet(connectionSocket, uri);
 					threadGet.start();
 					break;
 					
@@ -46,7 +46,7 @@ public class MediatorMain {
 					payloadFormat = Integer.parseInt(string.split(ARGUMENT_SEPARATOR)[2]);
 					System.out.println("PutRequest received..");
 					
-					PutMediatorThread threadPut = new PutMediatorThread(connectionSocket, uri, payload, payloadFormat);
+					MediatorThreadPut threadPut = new MediatorThreadPut(connectionSocket, uri, payload, payloadFormat);
 					threadPut.start();
 					break;
 					
@@ -57,7 +57,7 @@ public class MediatorMain {
 					requestId = Integer.parseInt(string.split(ARGUMENT_SEPARATOR)[1]);
 					System.out.println("ResponseRequest received..");
 					
-					ResponseMediatorThread thread = new ResponseMediatorThread(connectionSocket, requestId, uri);
+					MediatorThreadResponse thread = new MediatorThreadResponse(connectionSocket, requestId, uri);
 					thread.start();
 					break;
 			}

@@ -29,6 +29,7 @@ import org.eclipse.californium.core.network.EndpointManager;
 import org.eclipse.californium.core.network.config.NetworkConfig;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
+
 import it.unibo.qactors.akka.QActor;
 import it.unibo.radar.RadarPoint;
 
@@ -84,27 +85,29 @@ public class coapRadarServer extends CoapServer{
     	public RadarPointResource() {
     		super("RadarPoint"); // logical name of the resource
             getAttributes().setTitle("RadarPoint Resource");
-            radarPoint = new RadarPoint(); // initialize at (0,0) coordinates
+            radarPoint = new RadarPoint(); // initialise at (0,0) coordinates
     	}
     	
     	@Override
         public void handleGET(CoapExchange exchange) {
     		System.out.println("GET request received.");
+    		System.out.println("Message from client <-- " + exchange.getRequestText());
             exchange.respond(radarPoint.compactToString());
+    		System.out.println("Message to client --> " + radarPoint.compactToString());
         }
     	
     	@Override
-    	public void handlePUT(CoapExchange exange) {
+    	public void handlePUT(CoapExchange exchange) {
     		System.out.println("PUT request received.");
-    		String message = exange.getRequestText();
-    		System.out.println("message: "+message);
+    		System.out.println("Message from client <-- " + exchange.getRequestText());
     		try{
-    			radarPoint = RadarPoint.convertFromString(message);
+    			radarPoint = RadarPoint.convertFromString(exchange.getRequestText());
     			ACTOR.emit("polar", "p("+radarPoint.compactToString()+")"); // changing radar gui
-    			exange.respond(ResponseCode.CHANGED, "Resource changed.");
+    			exchange.respond(ResponseCode.CHANGED, "Resource changed.");
     			changed();
+        		System.out.println("Message to client --> " + "Resource changed.");
     		} catch(IllegalArgumentException e){
-    			exange.respond(ResponseCode.UNSUPPORTED_CONTENT_FORMAT, "Request ignored.");
+    			exchange.respond(ResponseCode.UNSUPPORTED_CONTENT_FORMAT, "Request ignored.");
     		}
     	}
     }

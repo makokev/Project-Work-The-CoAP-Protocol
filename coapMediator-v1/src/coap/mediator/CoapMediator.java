@@ -11,10 +11,10 @@ import coap.mediator.response.*;
 public class CoapMediator {
 	
 	private static ConcurrentHashMap<Integer, CoapRequest> requests = new ConcurrentHashMap<>();
-	private static SynchronizedCounter counter = new SynchronizedCounter();
+	private static SynchronisedCounter counter = new SynchronisedCounter();
 	
 	// used by clients to send a GET-REQUEST
-	public static CoapRequestID Get(String uri){
+	public static ClientMediatorRequestID Get(String uri){
 		CoapRequestGet coapRequest = new CoapRequestGet(counter.GetCount(), uri);
 		counter.IncrementCount();
 		requests.put(coapRequest.GetRequestId().getNumericId(), coapRequest);
@@ -23,7 +23,7 @@ public class CoapMediator {
 	}
 	
 	// used by clients to send a PUT-REQUEST
-	public static CoapRequestID Put(String uri, String payload, int payloadFormat){
+	public static ClientMediatorRequestID Put(String uri, String payload, int payloadFormat){
 		CoapRequestPut coapRequest = new CoapRequestPut(counter.GetCount(), uri, payload, payloadFormat);
 		counter.IncrementCount();
 		requests.put(coapRequest.GetRequestId().getNumericId(), coapRequest);
@@ -32,7 +32,7 @@ public class CoapMediator {
 	}
 
 	// used by clients to send a RESPONSE-REQUEST to obtain the response if exists
-	static public CoapMediatorResponse GetResponse(CoapRequestID coapID){
+	static public CoapMediatorResponse GetResponse(ClientMediatorRequestID coapID){
 		 if(coapID.getNumericId() >= counter.GetCount() || coapID.getNumericId() < 0)
 			 return new CoapMediatorResponse(null, CoapMediatorResponseCode.ILLEGAL_REQUEST);
 		 if(!requests.containsKey(coapID.getNumericId()))

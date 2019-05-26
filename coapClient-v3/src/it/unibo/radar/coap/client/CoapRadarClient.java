@@ -6,9 +6,10 @@ import java.net.URISyntaxException;
 import org.eclipse.californium.core.CoapClient;
 import org.eclipse.californium.core.CoapResponse;
 import org.eclipse.californium.core.coap.CoAP.ResponseCode;
-import org.eclipse.californium.core.coap.MediaTypeRegistry;
 
-import it.unibo.radar.coap.RadarPoint;
+import it.unibo.radar.RadarPoint;
+
+import org.eclipse.californium.core.coap.MediaTypeRegistry;
 
 public class CoapRadarClient {
 	

@@ -1,6 +1,6 @@
 package main;
 
-import it.unibo.radar.gui.RadarGUIController;
+import it.unibo.radar.RadarGUIController;
 
 public class MainClient {
 

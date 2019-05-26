@@ -69,7 +69,7 @@ public abstract class AbstractClient_actor extends QActor {
 	    	String myselfName = "init";  
 	    	temporaryStr = "\"radarCoapClient: start.\"";
 	    	println( temporaryStr );  
-	    	it.unibo.radar.gui.radarGUIController.startGUI( myself  );
+	    	it.unibo.radar.radarGUIController.startGUI( myself  );
 	    	//switchTo running
 	        switchToPlanAsNextState(pr, myselfName, "client_actor_"+myselfName, 
 	              "running",false, false, null); 

@@ -15,10 +15,10 @@ import coap.server.response.CoapServerResponse;
 public class CoapMediator {
 	
 	private static ConcurrentHashMap<Integer, CoapRequest> requests = new ConcurrentHashMap<>();
-	private static SynchronizedCounter counter = new SynchronizedCounter();
+	private static SynchronisedCounter counter = new SynchronisedCounter();
 	
 	// used by clients to send a GET-REQUEST
-	public static CoapRequestID Get(String uri){
+	public static ClientMediatorRequestID Get(String uri){
 		CoapRequestGet coapRequest = new CoapRequestGet(counter.GetCount(), uri);
 		counter.IncrementCount();
 		requests.put(coapRequest.GetRequestId().getNumericId(), coapRequest);
@@ -27,7 +27,7 @@ public class CoapMediator {
 	}
 	
 	// used by clients to send a PUT-REQUEST
-	public static CoapRequestID Put(String uri, String payload, int payloadFormat){
+	public static ClientMediatorRequestID Put(String uri, String payload, int payloadFormat){
 		CoapRequestPut coapRequest = new CoapRequestPut(counter.GetCount(), uri, payload, payloadFormat);
 		counter.IncrementCount();
 		requests.put(coapRequest.GetRequestId().getNumericId(), coapRequest);
@@ -36,7 +36,7 @@ public class CoapMediator {
 	}
 
 	// used by clients to send a RESPONSE-REQUEST to obtain the response if exists
-	static public CoapMediatorResponse GetResponse(CoapRequestID coapID){
+	static public CoapMediatorResponse GetResponse(ClientMediatorRequestID coapID){
 		 if(coapID.getNumericId() >= counter.GetCount() || coapID.getNumericId() < 0)
 			 return new CoapMediatorResponse(coapID, CoapMediatorResponseCode.ILLEGAL_REQUEST, CoapMediatorResponseCode.ILLEGAL_REQUEST.getDescription(), MediaTypeRegistry.TEXT_PLAIN);
 		 if(!requests.containsKey(coapID.getNumericId()))
@@ -46,7 +46,7 @@ public class CoapMediator {
 		if(!request.IsResponseReady())
 			return new CoapMediatorResponse(coapID, CoapMediatorResponseCode.RESPONSE_NOT_AVAILABLE_YET, CoapMediatorResponseCode.RESPONSE_NOT_AVAILABLE_YET.getDescription(), MediaTypeRegistry.TEXT_PLAIN);
 		
-		requests.remove(coapID.getNumericId()); // the response is readable only one time!
+		requests.remove(coapID.getNumericId()); // the response is readable only once!
 		System.out.println("RESPONSE TEXT: "+request.GetResponse().getResponseText());
 		
 		CoapServerResponse serverResponse = (new Gson()).fromJson(request.GetResponse().getResponseText(), CoapServerResponse.class);

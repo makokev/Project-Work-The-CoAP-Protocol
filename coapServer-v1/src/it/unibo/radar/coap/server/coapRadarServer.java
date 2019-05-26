@@ -85,7 +85,7 @@ public class coapRadarServer extends CoapServer{
     	public RadarPointResource() {
     		super("RadarPoint"); // logical name of the resource
             getAttributes().setTitle("RadarPoint Resource");
-            radarPoint = new RadarPoint(); // initialize at (0,0) coordinates
+            radarPoint = new RadarPoint(); // initialise at (0,0) coordinates
     	}
     	
     	@Override

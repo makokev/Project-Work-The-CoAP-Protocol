@@ -10,8 +10,10 @@ import org.eclipse.californium.core.coap.MediaTypeRegistry;
 import com.google.gson.Gson;
 
 import coap.server.response.CoapServerResponse;
-import it.unibo.radar.coap.RadarPoint;
-
+import it.unibo.radar.RadarPoint;
+/**
+ * This class represents the coap radar client. It can execute GET and PUT requests.
+ */
 public class CoapRadarClient {
 	
 	public static final String URI_STRING = "coap://localhost:5683/RadarPoint";
@@ -35,17 +37,26 @@ public class CoapRadarClient {
 		client = new CoapClient(uri);
 	}
 	
+	/**
+	 * @return
+	 * It returns an instance of RadarPoint received from the server.
+	 */
 	public RadarPoint getResourceValue(){
 		CoapResponse response = client.get();
 		if (response != null){
 			CoapServerResponse serverResponse = (new Gson()).fromJson(response.getResponseText(), CoapServerResponse.class);
 			return (new Gson()).fromJson(serverResponse.getBody(), RadarPoint.class);
-			//return RadarPoint.convertFromString(response.getResponseText());
 		}
 		System.out.println("No response received.");
 		return null;
 	}
-	
+
+	/**
+	 * @param point
+	 * represents the RadarPoint that must be sent to the server.
+	 * @return
+	 * It returns the server response text.
+	 */
 	public String putResourceValue(RadarPoint point){
 		if(point != null){
 			CoapResponse response = client.put((new Gson()).toJson(point), MediaTypeRegistry.APPLICATION_JSON);

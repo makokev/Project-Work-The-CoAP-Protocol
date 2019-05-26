@@ -39,7 +39,7 @@ public class MediatorMain {
 
 					uri = requestBody.get("uri").getAsString();
 					System.out.println("GetRequest received..");
-					GetMediatorThread threadGet = new GetMediatorThread(connectionSocket, uri);
+					MediatorThreadGet threadGet = new MediatorThreadGet(connectionSocket, uri);
 					threadGet.start();
 					break;
 					
@@ -51,7 +51,7 @@ public class MediatorMain {
 					payloadFormat = requestBody.get("payloadFormat").getAsInt();
 					System.out.println("PutRequest received..");
 					
-					PutMediatorThread threadPut = new PutMediatorThread(connectionSocket, uri, payload, payloadFormat);
+					MediatorThreadPut threadPut = new MediatorThreadPut(connectionSocket, uri, payload, payloadFormat);
 					threadPut.start();
 					break;
 					
@@ -63,7 +63,7 @@ public class MediatorMain {
 					requestId = requestBody.get("requestId").getAsInt();
 					System.out.println("ResponseRequest received..");
 					
-					ResponseMediatorThread thread = new ResponseMediatorThread(connectionSocket, Code.valueOf(requestType), requestId, uri);
+					MediatorThreadResponse thread = new MediatorThreadResponse(connectionSocket, Code.valueOf(requestType), requestId, uri);
 					thread.start();
 					break;
 			}

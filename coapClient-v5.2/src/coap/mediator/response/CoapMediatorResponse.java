@@ -1,21 +1,21 @@
 package coap.mediator.response;
 
-import coap.mediator.request.CoapRequestID;
+import coap.mediator.request.ClientMediatorRequestID;
 
 public class CoapMediatorResponse {
-	private CoapRequestID requestId;
+	private ClientMediatorRequestID requestId;
 	private CoapMediatorResponseCode responseCode;
 	private String responseBody;
 	private int responseBodyType;
 	
-	public CoapMediatorResponse(CoapRequestID requestId, CoapMediatorResponseCode responseCode, String responseBody, int responseBodyType){
+	public CoapMediatorResponse(ClientMediatorRequestID requestId, CoapMediatorResponseCode responseCode, String responseBody, int responseBodyType){
 		this.requestId = requestId;
 		this.responseCode = responseCode;
 		this.responseBody = responseBody;
 		this.responseBodyType = responseBodyType;
 	}
 	
-	public CoapRequestID getRequestId() {
+	public ClientMediatorRequestID getRequestId() {
 		return requestId;
 	}
 

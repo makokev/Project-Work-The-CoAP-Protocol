@@ -1,6 +1,6 @@
 /*
 ================================================================================
-build_coapClient.gradle
+coapClient-v3.2.gradle
 GENERATED ONLY ONCE
 USAGE:	 
 	gradle -b build_coapClient_v3.gradle eclipse		//to set the dependency on the library

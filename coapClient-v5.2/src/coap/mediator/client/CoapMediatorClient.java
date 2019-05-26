@@ -9,7 +9,10 @@ import org.eclipse.californium.core.coap.MediaTypeRegistry;
 
 import com.google.gson.Gson;
 
-import coap.mediator.request.CoapRequestID;
+import coap.mediator.request.ClientMediatorRequestGet;
+import coap.mediator.request.ClientMediatorRequestID;
+import coap.mediator.request.ClientMediatorRequestPut;
+import coap.mediator.request.ClientMediatorRequestResponse;
 import coap.mediator.response.CoapMediatorResponse;
 import coap.mediator.response.CoapMediatorResponseCode;
 
@@ -18,7 +21,7 @@ public class CoapMediatorClient {
 	private static final String REMOTE_MEDIATOR_HOST = "localhost";
 	private static final int REMOTE_MEDIATOR_PORT = 5633;
 	
-	public static CoapRequestID Get(String resourceURI){
+	public static ClientMediatorRequestID Get(String resourceURI){
 		// out format:	ClientMediatorRequestGet
 		// in  format:	CoapRequestID
 		
@@ -35,7 +38,7 @@ public class CoapMediatorClient {
 			message = inFromMediator.readUTF();
 			clientSocket.close();
 			System.out.println("Message from mediator <-- "+message);
-			CoapRequestID requestId = (new Gson()).fromJson(message, CoapRequestID.class);
+			ClientMediatorRequestID requestId = (new Gson()).fromJson(message, ClientMediatorRequestID.class);
 			System.out.println("REQUEST_GET ID: " + requestId.getNumericId()+"\n");
 			return requestId;
 			
@@ -46,7 +49,7 @@ public class CoapMediatorClient {
 		return null;
 	}
 	
-	public static CoapRequestID Put(String resourceURI, String payload){
+	public static ClientMediatorRequestID Put(String resourceURI, String payload){
 		// out format:	ClientMediatorRequestPut
 		// in  format:	CoapRequestID
 				
@@ -63,7 +66,7 @@ public class CoapMediatorClient {
 			message = inFromMediator.readUTF();
 			clientSocket.close();
 			System.out.println("Message from mediator <-- "+message);
-			CoapRequestID requestId = (new Gson()).fromJson(message, CoapRequestID.class);
+			ClientMediatorRequestID requestId = (new Gson()).fromJson(message, ClientMediatorRequestID.class);
 			System.out.println("REQUEST_PUT ID: " + requestId.getNumericId()+"\n");
 			return requestId;
 		} catch (IOException e1) {
@@ -73,7 +76,7 @@ public class CoapMediatorClient {
 		return null;
 	}
 	
-	public static CoapMediatorResponse GetResponse(CoapRequestID requestId){
+	public static CoapMediatorResponse GetResponse(ClientMediatorRequestID requestId){
 		// out format:	ClientMediatorRequestResponse
 		// in  format:	CoapMediatorResponse
 		
